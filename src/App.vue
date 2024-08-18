@@ -1,11 +1,14 @@
 <template>
-  <PageHeader />
-  <div class="container">
-    <Balance :total="total" />
-    <IncomeExpense :income="+income" :expense="+expense" />
-    <TransactionList :transactions="transactions" @transactionDeleted="handleTransactionDeleted" />
-    <AddTransaction @transactionSubmitted="handleTransactionSubmitted" />
-  </div>
+    <PageHeader />
+    <div class="container">
+        <Balance :total="total" />
+        <IncomeExpense :income="+income" :expense="+expense" />
+        <TransactionList
+            :transactions="transactions"
+            @transactionDeleted="handleTransactionDeleted"
+        />
+        <AddTransaction @transactionSubmitted="handleTransactionSubmitted" />
+    </div>
 </template>
 
 <script setup>
@@ -24,57 +27,71 @@ const toast = useToast()
 const transactions = ref([])
 
 const fetchTransactions = async () => {
-  try {
-    const response = await api.getData()
-    transactions.value = response.data
-  } catch (error) {
-    console.error('Error fetching data:', error)
-  }
+    try {
+        const response = await api.getData()
+        transactions.value = response.data
+    } catch (error) {
+        console.error('Error fetching data:', error)
+    }
+}
+
+const insertTransaction = async (transactionData) => {
+    try {
+        await api.post('/transactions', {
+            merchant: transactionData.merchant,
+            transaction_amount: transactionData.amount
+        })
+    } catch (error) {
+        console.error('Error fetching data:', error)
+    }
 }
 
 onMounted(() => {
-  fetchTransactions()
+    fetchTransactions()
 })
 
 const total = computed(() => {
-  return transactions.value.reduce((acc, transaction) => {
-    return acc + transaction.transaction_amount
-  }, 0)
+    return transactions.value.reduce((acc, transaction) => {
+        return acc + transaction.transaction_amount
+    }, 0)
 })
 
 const income = computed(() => {
-  return transactions.value
-    .filter((transaction) => transaction.transaction_amount >= 0)
-    .reduce((acc, transaction) => {
-      return acc + transaction.transaction_amount
-    }, 0)
-    .toFixed(2)
+    return transactions.value
+        .filter((transaction) => transaction.transaction_amount >= 0)
+        .reduce((acc, transaction) => {
+            return acc + transaction.transaction_amount
+        }, 0)
+        .toFixed(2)
 })
 
 const expense = computed(() => {
-  return transactions.value
-    .filter((transaction) => transaction.transaction_amount < 0)
-    .reduce((acc, transaction) => {
-      return acc + transaction.transaction_amount
-    }, 0)
-    .toFixed(2)
+    return transactions.value
+        .filter((transaction) => transaction.transaction_amount < 0)
+        .reduce((acc, transaction) => {
+            return acc + transaction.transaction_amount
+        }, 0)
+        .toFixed(2)
 })
 
 //Add transaction
 const handleTransactionSubmitted = (transactionData) => {
-  transactions.value.push({
-    transaction_id: transactionData.id,
-    merchant: transactionData.merchant,
-    transaction_amount: transactionData.amount
-  })
+    transactions.value.push({
+        transaction_id: transactionData.id,
+        merchant: transactionData.merchant,
+        transaction_amount: transactionData.amount
+    })
+    insertTransaction(transactionData)
 
-  toast.success('Transaction added.')
+    toast.success('Transaction added.')
 }
 
 //Delete transaction
 const handleTransactionDeleted = (id) => {
-  transactions.value = transactions.value.filter((transaction) => transaction.transaction_id !== id)
+    transactions.value = transactions.value.filter(
+        (transaction) => transaction.transaction_id !== id
+    )
 
-  toast.success('Transaction deleted.')
+    toast.success('Transaction deleted.')
 }
 </script>
