@@ -16,39 +16,46 @@ import TransactionList from './components/TransactionList.vue'
 import AddTransaction from './components/AddTransaction.vue'
 
 import { useToast } from 'vue-toastification'
+import api from '@/services/api'
 import { ref, computed, onMounted } from 'vue'
 
 const toast = useToast()
 
 const transactions = ref([])
 
-onMounted(() => {
-  const savedTransaction = JSON.parse(localStorage.getItem('transactions'))
-  if (savedTransaction) {
-    transactions.value = savedTransaction
+const fetchTransactions = async () => {
+  try {
+    const response = await api.getData()
+    transactions.value = response.data
+  } catch (error) {
+    console.error('Error fetching data:', error)
   }
+}
+
+onMounted(() => {
+  fetchTransactions()
 })
 
 const total = computed(() => {
   return transactions.value.reduce((acc, transaction) => {
-    return acc + transaction.amount
+    return acc + transaction.transaction_amount
   }, 0)
 })
 
 const income = computed(() => {
   return transactions.value
-    .filter((transaction) => transaction.amount >= 0)
+    .filter((transaction) => transaction.transaction_amount >= 0)
     .reduce((acc, transaction) => {
-      return acc + transaction.amount
+      return acc + transaction.transaction_amount
     }, 0)
     .toFixed(2)
 })
 
 const expense = computed(() => {
   return transactions.value
-    .filter((transaction) => transaction.amount < 0)
+    .filter((transaction) => transaction.transaction_amount < 0)
     .reduce((acc, transaction) => {
-      return acc + transaction.amount
+      return acc + transaction.transaction_amount
     }, 0)
     .toFixed(2)
 })
@@ -56,25 +63,18 @@ const expense = computed(() => {
 //Add transaction
 const handleTransactionSubmitted = (transactionData) => {
   transactions.value.push({
-    id: transactionData.id,
+    transaction_id: transactionData.id,
     merchant: transactionData.merchant,
-    amount: transactionData.amount
+    transaction_amount: transactionData.amount
   })
-  saveTransactionToLocalStorage()
 
   toast.success('Transaction added.')
 }
 
 //Delete transaction
 const handleTransactionDeleted = (id) => {
-  transactions.value = transactions.value.filter((transaction) => transaction.id !== id)
-  saveTransactionToLocalStorage()
+  transactions.value = transactions.value.filter((transaction) => transaction.transaction_id !== id)
 
   toast.success('Transaction deleted.')
-}
-
-//Save to local storage
-const saveTransactionToLocalStorage = () => {
-  localStorage.setItem('transactions', JSON.stringify(transactions.value))
 }
 </script>

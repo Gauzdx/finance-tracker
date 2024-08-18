@@ -3,11 +3,11 @@
   <ul id="list" class="list">
     <li
       v-for="transaction in transactions"
-      :key="transaction.id"
-      :class="transaction.amount < 0 ? 'minus' : 'plus'"
+      :key="transaction.transaction_id"
+      :class="transaction.transaction_amount < 0 ? 'minus' : 'plus'"
     >
-      {{ transaction.merchant }} <span>${{ transaction.amount }}</span>
-      <button @click="deleteTransaction(transaction.id)" class="delete-btn">x</button>
+      {{ transaction.merchant }} <span>${{ transaction.transaction_amount }}</span>
+      <button @click="deleteTransaction(transaction.transaction_id)" class="delete-btn">x</button>
     </li>
   </ul>
 </template>
