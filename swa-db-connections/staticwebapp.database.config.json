@@ -2,7 +2,7 @@
     "$schema": "https://github.com/Azure/data-api-builder/releases/download/v1.1.7/dab.draft.schema.json",
     "data-source": {
         "database-type": "mssql",
-        "connection-string": "Server=tcp:grvkmr-financetracker.database.windows.net,1433;Initial Catalog=financetracker-personal_expenses;Persist Security Info=False;User ID=gaurav;Password=F@22raptor;MultipleActiveResultSets=False;Encrypt=True;TrustServerCertificate=False;Connection Timeout=30;",
+        "connection-string": "@env('DATABASE_CONNECTION_STRING')",
         "options": {
             "set-session-context": false
         }
