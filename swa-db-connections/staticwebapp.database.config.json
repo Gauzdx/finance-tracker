@@ -29,5 +29,15 @@
             "mode": "production"
         }
     },
-    "entities": {}
+    "entities": {
+        "personal_transactions": {
+            "source": "dbo.personal_transactions",
+            "permissions": [
+                {
+                    "actions": ["create"],
+                    "role": "anonymous"
+                }
+            ]
+        }
+    }
 }
