@@ -34,7 +34,7 @@
             "source": "dbo.personal_transactions",
             "permissions": [
                 {
-                    "actions": ["create"],
+                    "actions": ["*"],
                     "role": "anonymous"
                 }
             ]

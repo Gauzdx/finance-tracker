@@ -47,7 +47,7 @@ const insertTransaction = async (transactionData) => {
 }
 
 onMounted(() => {
-    fetchTransactions()
+    //fetchTransactions()
 })
 
 const total = computed(() => {
@@ -81,7 +81,7 @@ const handleTransactionSubmitted = (transactionData) => {
         merchant: transactionData.merchant,
         transaction_amount: transactionData.amount
     })
-    insertTransaction(transactionData)
+    //insertTransaction(transactionData)
 
     toast.success('Transaction added.')
 }
