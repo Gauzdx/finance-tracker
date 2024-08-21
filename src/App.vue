@@ -20,30 +20,17 @@ import AddTransaction from './components/AddTransaction.vue'
 
 import { useToast } from 'vue-toastification'
 import axios from 'axios'
-import api from '@/services/api'
 import { ref, computed, onMounted } from 'vue'
 
 const toast = useToast()
 
 const transactions = ref([])
 
-const fetchTransactions1 = async () => {
-    axios
-        .get('/data-api/rest/personaltransactions')
-        .then(async function (response) {
-            transactions.value = response.data
-        })
-        .catch(function (error) {
-            console.log(error)
-        })
-        .finally(function () {})
-}
-
 const fetchTransactions = async () => {
     try {
         const response = await axios.get('/data-api/rest/personaltransactions')
-        transactions.value = Object.keys(response.data).map((key) => [key, response.data[key]])
-        console.log(transactions.value[0][1])
+        transactions.value = response.data.value
+        console.log(response.data)
     } catch (error) {
         console.log(error)
     } finally {
@@ -53,7 +40,7 @@ const fetchTransactions = async () => {
 
 const insertTransaction = async (transactionData) => {
     try {
-        await api.post('/transactions', {
+        await axios.post('/data-api/rest/transactions', {
             merchant: transactionData.merchant,
             transaction_amount: transactionData.amount
         })
@@ -97,7 +84,7 @@ const handleTransactionSubmitted = (transactionData) => {
         merchant: transactionData.merchant,
         transaction_amount: transactionData.amount
     })
-    //insertTransaction(transactionData)
+    insertTransaction(transactionData)
 
     toast.success('Transaction added.')
 }
