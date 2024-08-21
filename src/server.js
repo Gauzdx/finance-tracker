@@ -8,7 +8,7 @@ const envPath = path.resolve(__dirname, '../.env')
 dotenv.config({ path: envPath })
 
 const app = express()
-const port = process.env.PORT || 3000
+const port = process.env.PORT || 1433
 
 app.use(cors())
 app.use(express.json())
@@ -21,9 +21,9 @@ const pool = new Pool({
     port: process.env.DB_PORT
 })
 
-app.get('/api/data', async (req, res) => {
+app.get('/data-api/rest/list', async (req, res) => {
     try {
-        const result = await pool.query('SELECT * FROM personal_transactions')
+        const result = await pool.query('SELECT * FROM [dbo].[personaltransactions]')
         res.json(result.rows)
     } catch (err) {
         console.error(err)
@@ -31,12 +31,12 @@ app.get('/api/data', async (req, res) => {
     }
 })
 
-app.post('/api/transactions', async (req, res) => {
+app.post('/data-api/rest/transactions', async (req, res) => {
     const { merchant, transaction_amount } = req.body
 
     try {
         const query = `
-          INSERT INTO personal_transactions (merchant, transaction_amount)
+          INSERT INTO [dbo].[personaltransactions] (merchant, transaction_amount)
           VALUES ($1, $2);`
         const values = [merchant, transaction_amount]
 

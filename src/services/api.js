@@ -1,7 +1,7 @@
 import axios from 'axios'
 
 const apiClient = axios.create({
-    baseURL: 'http://localhost:3000/data-api',
+    baseURL: 'http://localhost:1433/data-api/rest',
     headers: {
         'Content-Type': 'application/json'
     }
@@ -9,7 +9,7 @@ const apiClient = axios.create({
 
 export default {
     getData() {
-        return apiClient.get('/data')
+        return apiClient.get('/personaltransactions')
     },
     post(endpoint, data) {
         return apiClient.post(endpoint, data)
