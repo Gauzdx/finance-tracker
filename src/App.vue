@@ -40,12 +40,12 @@ const fetchTransactions = async () => {
 
 const insertTransaction = async (transactionData) => {
     try {
-        await axios.post('/data-api/rest/transactions', {
+        await axios.post('/data-api/rest/personaltransactions', {
             merchant: transactionData.merchant,
             transaction_amount: transactionData.amount
         })
     } catch (error) {
-        console.error('Error fetching data:', error)
+        console.error('Error inserting data:', error)
     }
 }
 
