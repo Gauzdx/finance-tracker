@@ -38,6 +38,24 @@
                     "role": "anonymous"
                 }
             ]
+        },
+        "categories": {
+            "source": "dbo.categories",
+            "permissions": [
+                {
+                    "actions": ["*"],
+                    "role": "anonymous"
+                }
+            ]
+        },
+        "accounts": {
+            "source": "dbo.accounts",
+            "permissions": [
+                {
+                    "actions": ["*"],
+                    "role": "anonymous"
+                }
+            ]
         }
     }
 }

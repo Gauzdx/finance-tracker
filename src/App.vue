@@ -33,15 +33,31 @@ const fetchTransactions = async () => {
         console.log(response.data)
     } catch (error) {
         console.log(error)
-    } finally {
-        // Optional cleanup or additional logic can go here
+    }
+}
+
+const fetchAllCategories = async () => {
+    try {
+        const response = await axios.get('/data-api/rest/categories')
+        console.log(response.data.value)
+    } catch (error) {
+        console.log(error)
+    }
+}
+
+const fetchAllAccounts = async () => {
+    try {
+        const response = await axios.get('/data-api/rest/accounts')
+        console.log(response.data.value)
+    } catch (error) {
+        console.log(error)
     }
 }
 
 const insertTransaction = async (transactionData) => {
     try {
         await axios.post('/data-api/rest/personaltransactions', {
-            merchant: transactionData.merchant,
+            transaction_merchant: transactionData.merchant,
             transaction_amount: transactionData.amount
         })
     } catch (error) {
@@ -51,6 +67,8 @@ const insertTransaction = async (transactionData) => {
 
 onMounted(() => {
     fetchTransactions()
+    fetchAllCategories()
+    fetchAllAccounts()
 })
 
 const total = computed(() => {
@@ -81,7 +99,7 @@ const expense = computed(() => {
 const handleTransactionSubmitted = (transactionData) => {
     transactions.value.push({
         transaction_id: transactionData.id,
-        merchant: transactionData.merchant,
+        transaction_merchant: transactionData.merchant,
         transaction_amount: transactionData.amount
     })
     insertTransaction(transactionData)
