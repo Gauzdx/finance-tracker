@@ -29,6 +29,7 @@ const fetchTransactions = async () => {
     try {
         const response = await axios.get('/data-api/rest/personaltransactions')
         transactions.value = response.data.value
+        console.log(`transaction`)
         console.log(response.data)
     } catch (error) {
         console.log(error)
