@@ -1,16 +1,13 @@
 <template>
     <h3>History</h3>
     <ul id="list" class="list">
-        <li
-            v-for="transaction in transactions"
-            :key="transaction.transaction_id"
-            :class="transaction.transaction_amount < 0 ? 'minus' : 'plus'"
-        >
-            {{ transaction.transaction_merchant }}
-            <span>${{ transaction.transaction_amount }}</span>
-            <button @click="deleteTransaction(transaction.transaction_id)" class="delete-btn">
-                x
-            </button>
+        <li v-for="transaction in transactions" :key="transaction.transaction_id" :class="transaction.transaction_charge < 0 ? 'minus' : 'plus'">
+            <span>{{ transaction.transaction_date }}</span>
+            <span>{{ transaction.transaction_account }}</span>
+            <span>{{ transaction.transaction_merchant }}</span>
+            <span>{{ transaction.transaction_category }}</span>
+            <span>${{ transaction.transaction_charge }}</span>
+            <button @click="deleteTransaction(transaction.transaction_id)" class="delete-btn">x</button>
         </li>
     </ul>
 </template>

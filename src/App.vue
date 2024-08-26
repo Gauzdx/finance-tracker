@@ -3,10 +3,7 @@
     <div class="container">
         <Balance :total="total" />
         <IncomeExpense :income="+income" :expense="+expense" />
-        <TransactionList
-            :transactions="transactions"
-            @transactionDeleted="handleTransactionDeleted"
-        />
+        <TransactionList :transactions="transactions" @transactionDeleted="handleTransactionDeleted" />
         <AddTransaction @transactionSubmitted="handleTransactionSubmitted" />
     </div>
 </template>
@@ -58,8 +55,16 @@ const insertTransaction = async (transactionData) => {
     try {
         await axios.post('/data-api/rest/personaltransactions', {
             transaction_merchant: transactionData.merchant,
-            transaction_amount: transactionData.amount
+            transaction_charge: transactionData.charge
         })
+    } catch (error) {
+        console.error('Error inserting data:', error)
+    }
+}
+
+const deleteTransaction = async (id) => {
+    try {
+        await axios.delete('/data-api/rest/personaltransactions/transaction_id/' + id)
     } catch (error) {
         console.error('Error inserting data:', error)
     }
@@ -73,24 +78,24 @@ onMounted(() => {
 
 const total = computed(() => {
     return transactions.value.reduce((acc, transaction) => {
-        return acc + transaction.transaction_amount
+        return acc + transaction.transaction_charge
     }, 0)
 })
 
 const income = computed(() => {
     return transactions.value
-        .filter((transaction) => transaction.transaction_amount >= 0)
+        .filter((transaction) => transaction.transaction_charge >= 0)
         .reduce((acc, transaction) => {
-            return acc + transaction.transaction_amount
+            return acc + transaction.transaction_charge
         }, 0)
         .toFixed(2)
 })
 
 const expense = computed(() => {
     return transactions.value
-        .filter((transaction) => transaction.transaction_amount < 0)
+        .filter((transaction) => transaction.transaction_charge < 0)
         .reduce((acc, transaction) => {
-            return acc + transaction.transaction_amount
+            return acc + transaction.transaction_charge
         }, 0)
         .toFixed(2)
 })
@@ -100,7 +105,7 @@ const handleTransactionSubmitted = (transactionData) => {
     transactions.value.push({
         transaction_id: transactionData.id,
         transaction_merchant: transactionData.merchant,
-        transaction_amount: transactionData.amount
+        transaction_charge: transactionData.charge
     })
     insertTransaction(transactionData)
 
@@ -109,9 +114,8 @@ const handleTransactionSubmitted = (transactionData) => {
 
 //Delete transaction
 const handleTransactionDeleted = (id) => {
-    transactions.value = transactions.value.filter(
-        (transaction) => transaction.transaction_id !== id
-    )
+    transactions.value = transactions.value.filter((transaction) => transaction.transaction_id !== id)
+    deleteTransaction(id)
 
     toast.success('Transaction deleted.')
 }
