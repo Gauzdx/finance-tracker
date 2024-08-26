@@ -1,8 +1,10 @@
 import { createApp } from 'vue'
+
 // Toastification
 import Toast from 'vue-toastification'
 import 'vue-toastification/dist/index.css'
 import './assets/style.css'
+
 // Vuetify
 import 'vuetify/styles'
 import { createVuetify } from 'vuetify'

@@ -4,7 +4,7 @@
         <Balance :total="total" />
         <IncomeExpense :income="+income" :expense="+expense" />
         <TransactionList :transactions="transactions" @transactionDeleted="handleTransactionDeleted" />
-        <AddTransaction @transactionSubmitted="handleTransactionSubmitted" />
+        <AddTransaction :accounts="accounts" :categories="categories" @transactionSubmitted="handleTransactionSubmitted" />
     </div>
 </template>
 
@@ -22,6 +22,8 @@ import { ref, computed, onMounted } from 'vue'
 const toast = useToast()
 
 const transactions = ref([])
+const accounts = ref([])
+const categories = ref([])
 
 const fetchTransactions = async () => {
     try {
@@ -36,7 +38,7 @@ const fetchTransactions = async () => {
 const fetchAllCategories = async () => {
     try {
         const response = await axios.get('/data-api/rest/categories')
-        console.log(response.data.value)
+        categories.value = response.data.value
     } catch (error) {
         console.log(error)
     }
@@ -45,7 +47,7 @@ const fetchAllCategories = async () => {
 const fetchAllAccounts = async () => {
     try {
         const response = await axios.get('/data-api/rest/accounts')
-        console.log(response.data.value)
+        accounts.value = response.data.value
     } catch (error) {
         console.log(error)
     }
