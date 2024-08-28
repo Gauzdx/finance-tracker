@@ -30,7 +30,7 @@ const fetchTransactions = async () => {
         const response = await axios.get('/data-api/rest/personaltransactions')
         transactions.value = response.data.value
         console.log(`transaction`)
-        console.log(response.data)
+        console.log(transactions.value)
     } catch (error) {
         console.log(error)
     }
@@ -57,8 +57,14 @@ const fetchAllAccounts = async () => {
 const insertTransaction = async (transactionData) => {
     try {
         await axios.post('/data-api/rest/personaltransactions', {
-            transaction_merchant: transactionData.merchant,
-            transaction_charge: transactionData.charge
+            transaction_date: transactionData[0].date,
+            transaction_account: transactionData[0].account,
+            transaction_merchant: transactionData[0].merchant,
+            transaction_category: transactionData[0].category,
+            transaction_type: transactionData[0].type,
+            transaction_amount: transactionData[0].amount,
+            transaction_charge: transactionData[0].charge,
+            transaction_description: transactionData[0].description
         })
     } catch (error) {
         console.error('Error inserting data:', error)
@@ -106,9 +112,14 @@ const expense = computed(() => {
 //Add transaction
 const handleTransactionSubmitted = (transactionData) => {
     transactions.value.push({
-        transaction_id: transactionData.id,
-        transaction_merchant: transactionData.merchant,
-        transaction_charge: transactionData.charge
+        transaction_date: transactionData[0].date,
+        transaction_account: transactionData[0].account,
+        transaction_merchant: transactionData[0].merchant,
+        transaction_category: transactionData[0].category,
+        transaction_type: transactionData[0].type,
+        transaction_amount: transactionData[0].amount,
+        transaction_charge: transactionData[0].charge,
+        transaction_description: transactionData[0].description
     })
     insertTransaction(transactionData)
 

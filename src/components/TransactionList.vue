@@ -7,7 +7,8 @@
             <span>{{ transaction.transaction_merchant }}</span>
             <span>{{ transaction.transaction_category }}</span>
             <span>${{ transaction.transaction_charge }}</span>
-            <button @click="deleteTransaction(transaction.transaction_id)" class="delete-btn">x</button>
+            <button @click="deleteTransaction(transaction.transaction_id)" class="delete-btn">❌</button>
+            <button @click="editTransaction(transaction.transaction_id)" class="edit-btn">✏️</button>
         </li>
     </ul>
 </template>
@@ -26,5 +27,9 @@ const props = defineProps({
 
 const deleteTransaction = (id) => {
     emit('transactionDeleted', id)
+}
+
+const editTransaction = (id) => {
+    console.log(id)
 }
 </script>
