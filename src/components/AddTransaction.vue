@@ -1,5 +1,4 @@
 <template>
-    <h3>Add new transaction</h3>
     <!-- Add Transaction Popup -->
     <div class="pa-4 text-center">
         <v-dialog v-model="dialog" max-width="600">

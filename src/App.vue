@@ -3,8 +3,8 @@
     <div class="container">
         <Balance :total="total" />
         <IncomeExpense :income="+income" :expense="+expense" />
-        <TransactionList :accounts="accounts" :categories="categories" :transactions="transactions" @transactionDeleted="handleTransactionDeleted" @transactionUpdated="handleTransactionUpdated" />
         <AddTransaction :accounts="accounts" :categories="categories" @transactionSubmitted="handleTransactionSubmitted" />
+        <TransactionList :accounts="accounts" :categories="categories" :transactions="transactions" @transactionDeleted="handleTransactionDeleted" @transactionUpdated="handleTransactionUpdated" />
     </div>
 </template>
 

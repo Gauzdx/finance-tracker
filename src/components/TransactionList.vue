@@ -30,7 +30,7 @@
                             <v-text-field clearable label="Merchant" v-model="trMerchant" variant="outlined"></v-text-field>
                         </v-col>
                         <v-col cols="12" md="4" sm="6">
-                            <v-select clearable chips label="Category" v-model="trCategory" :items="categoryNames" variant="outlined"></v-select>
+                            <v-select chips label="Category" v-model="trCategory" :items="categoryNames" variant="outlined"></v-select>
                         </v-col>
                     </v-row>
                     <v-row>
@@ -104,7 +104,7 @@ const categoryNames = computed(() => props.categories.map((category) => category
 const editTransaction = (transaction) => {
     trDateInMS.value = Date.parse(new Date(transaction.transaction_date))
     trId.value = transaction.transaction_id
-    trDate.value = new Date(transaction.transaction_date)
+    trDate.value = new Date(new Date(transaction.transaction_date).setDate(new Date(transaction.transaction_date).getDate() + 1))
     trAccount.value = transaction.transaction_account
     trMerchant.value = transaction.transaction_merchant
     trCategory.value = transaction.transaction_category
