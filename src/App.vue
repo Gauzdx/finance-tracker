@@ -3,7 +3,7 @@
     <div class="container">
         <Balance :total="total" />
         <IncomeExpense :income="+income" :expense="+expense" />
-        <TransactionList :transactions="transactions" @transactionDeleted="handleTransactionDeleted" />
+        <TransactionList :accounts="accounts" :categories="categories" :transactions="transactions" @transactionDeleted="handleTransactionDeleted" @transactionUpdated="handleTransactionUpdated" />
         <AddTransaction :accounts="accounts" :categories="categories" @transactionSubmitted="handleTransactionSubmitted" />
     </div>
 </template>
@@ -54,7 +54,7 @@ const fetchAllAccounts = async () => {
     }
 }
 
-const insertTransaction = async (transactionData) => {
+const createTransaction = async (transactionData) => {
     try {
         await axios.post('/data-api/rest/personaltransactions', {
             transaction_date: transactionData[0].date,
@@ -66,16 +66,39 @@ const insertTransaction = async (transactionData) => {
             transaction_charge: transactionData[0].charge,
             transaction_description: transactionData[0].description
         })
+        toast.success('Transaction added.')
     } catch (error) {
-        console.error('Error inserting data:', error)
+        console.error('Error creating data:', error)
+        toast.error('Error creating transaction.')
+    }
+}
+
+const updateTransaction = async (transactionData) => {
+    try {
+        await axios.put('/data-api/rest/personaltransactions/transaction_id/' + transactionData.transaction_id, {
+            transaction_date: transactionData.transaction_date,
+            transaction_account: transactionData.transaction_account,
+            transaction_merchant: transactionData.transaction_merchant,
+            transaction_category: transactionData.transaction_category,
+            transaction_type: transactionData.transaction_type,
+            transaction_amount: transactionData.transaction_amount,
+            transaction_charge: transactionData.transaction_charge,
+            transaction_description: transactionData.transaction_description
+        })
+        toast.success('Transaction edited.')
+    } catch (error) {
+        console.error('Error updating transaction:', error)
+        toast.error('Error updating transaction.')
     }
 }
 
 const deleteTransaction = async (id) => {
     try {
         await axios.delete('/data-api/rest/personaltransactions/transaction_id/' + id)
+        toast.success('Transaction deleted.')
     } catch (error) {
-        console.error('Error inserting data:', error)
+        console.error('Error deleting data:', error)
+        toast.error('Error deleting transaction.')
     }
 }
 
@@ -121,16 +144,24 @@ const handleTransactionSubmitted = (transactionData) => {
         transaction_charge: transactionData[0].charge,
         transaction_description: transactionData[0].description
     })
-    insertTransaction(transactionData)
+    createTransaction(transactionData)
+}
 
-    toast.success('Transaction added.')
+//Update Transaction
+const handleTransactionUpdated = (updatedTransaction) => {
+    const index = transactions.value.findIndex((transaction) => transaction.transaction_id === updatedTransaction.transaction_id)
+    if (index !== -1) {
+        transactions.value[index] = {
+            ...transactions.value[index],
+            ...updatedTransaction
+        }
+    }
+    updateTransaction(updatedTransaction)
 }
 
 //Delete transaction
 const handleTransactionDeleted = (id) => {
     transactions.value = transactions.value.filter((transaction) => transaction.transaction_id !== id)
     deleteTransaction(id)
-
-    toast.success('Transaction deleted.')
 }
 </script>
