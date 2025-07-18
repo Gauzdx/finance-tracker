@@ -13,9 +13,10 @@ body {
     display: flex;
     flex-direction: column;
     align-items: center;
-    justify-content: center;
+    justify-content: flex-start;
     min-height: 100vh;
     margin: 0;
+    padding-top: 20px;
     font-family: 'Lato', sans-serif;
     font-size: 18px;
 }
@@ -248,15 +249,45 @@ h4 {
 
 /* Mobile adjustments */
 @media (max-width: 768px) {
+    body {
+        padding-top: 10px;
+        font-size: 16px;
+    }
+    
     .container {
         width: 100%;
-        margin: 10px auto;
-        padding: 0 10px;
+        margin: 5px auto;
+        padding: 0 15px;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        margin: 10px 0;
+        text-align: center;
+    }
+
+    h2 {
+        font-size: 1.5em;
+        margin: 10px 0;
+        text-align: center;
     }
 
     h3 {
-        margin: 20px 0 10px;
-        font-size: 1.2em;
+        margin: 15px 0 10px;
+        font-size: 1.1em;
+    }
+
+    h4 {
+        font-size: 0.9em;
+    }
+
+    .inc-exp-container {
+        margin: 15px 0;
+        padding: 15px;
+    }
+
+    .money {
+        font-size: 18px;
     }
 
     .list {
@@ -349,8 +380,42 @@ h4 {
 
 /* Small mobile adjustments */
 @media (max-width: 480px) {
+    body {
+        padding-top: 5px;
+        font-size: 14px;
+    }
+    
     .container {
-        padding: 0 5px;
+        padding: 0 10px;
+        margin: 0 auto;
+    }
+
+    h1 {
+        font-size: 1.5em;
+        margin: 5px 0;
+    }
+
+    h2 {
+        font-size: 1.3em;
+        margin: 5px 0;
+    }
+
+    h3 {
+        font-size: 1em;
+        margin: 10px 0 5px;
+    }
+
+    h4 {
+        font-size: 0.8em;
+    }
+
+    .inc-exp-container {
+        padding: 12px;
+        margin: 10px 0;
+    }
+
+    .money {
+        font-size: 16px;
     }
 
     .list li {
@@ -372,5 +437,33 @@ h4 {
         padding: 6px 10px;
         font-size: 14px;
         margin-right: 8px;
+    }
+}
+
+/* iPhone specific adjustments */
+@media (max-width: 414px) {
+    body {
+        padding-top: 0;
+    }
+    
+    .container {
+        padding: 0 8px;
+        width: 100%;
+    }
+
+    h2 {
+        font-size: 1.2em;
+        margin: 8px 0;
+        padding: 0;
+    }
+
+    .inc-exp-container {
+        padding: 10px;
+        margin: 8px 0;
+    }
+
+    .list li span:before {
+        min-width: 70px;
+        font-size: 0.85em;
     }
 }
