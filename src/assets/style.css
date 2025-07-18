@@ -441,38 +441,46 @@ h4 {
 }
 
 /* iPhone specific adjustments */
-@media (max-width: 414px) {
+@media screen and (max-width: 414px) {
     body {
-        padding: 10px 15px 0 15px;
+        padding: 10px 0 0 0 !important;
     }
     
     .container {
-        padding: 0;
-        width: 100%;
-        margin: 0;
+        padding: 0 20px !important;
+        width: calc(100% - 40px) !important;
+        margin: 0 auto !important;
+        box-sizing: border-box !important;
     }
 
     h1 {
-        font-size: 1.8em;
-        margin: 10px 0;
-        text-align: center;
+        font-size: 1.8em !important;
+        margin: 10px 0 !important;
+        text-align: center !important;
+        padding: 0 10px !important;
     }
 
     h2 {
-        font-size: 1.4em;
-        margin: 10px 0;
-        padding: 0;
-        text-align: center;
+        font-size: 1.5em !important;
+        margin: 10px 0 !important;
+        padding: 0 10px !important;
+        text-align: center !important;
+    }
+
+    h3 {
+        padding: 0 10px !important;
+        margin: 15px 0 10px !important;
     }
 
     h4 {
-        font-size: 0.9em;
-        margin: 5px 0;
+        font-size: 0.9em !important;
+        margin: 5px 0 !important;
+        padding: 0 10px !important;
     }
 
     .inc-exp-container {
-        padding: 15px;
-        margin: 10px 0;
+        padding: 15px !important;
+        margin: 10px 0 !important;
     }
 
     .list li span:before {
@@ -482,10 +490,16 @@ h4 {
 
     .list {
         margin-bottom: 20px;
+        padding: 0 !important;
     }
 
     .list li {
-        margin: 8px 0;
-        padding: 15px;
+        margin: 8px 0 !important;
+        padding: 15px !important;
+    }
+
+    /* Override Vuetify padding for buttons */
+    .pa-4 {
+        padding: 16px 10px !important;
     }
 }
