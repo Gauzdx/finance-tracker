@@ -1,12 +1,13 @@
 <template>
     <h3>History</h3>
     <ul id="list" class="list">
-        <li v-for="transaction in transactions" :key="transaction.transaction_id" :class="transaction.transaction_charge < 0 ? 'minus' : 'plus'">
+        <li v-for="transaction in sortedTransactions" :key="transaction.transaction_id"
+            :class="transaction.transaction_charge < 0 ? 'minus' : 'plus'">
             <span>{{ transaction.transaction_date }}</span>
             <span>{{ transaction.transaction_account }}</span>
             <span>{{ transaction.transaction_merchant }}</span>
             <span>{{ transaction.transaction_category }}</span>
-            <span>${{ transaction.transaction_charge }}</span>
+            <span>{{ formatCurrency(transaction.transaction_charge) }}</span>
             <button @click="deleteTransaction(transaction.transaction_id)" class="delete-btn">❌</button>
             <button @click="editTransaction(transaction)" class="edit-btn">✏️</button>
         </li>
@@ -18,19 +19,23 @@
                 <v-card-text>
                     <v-row dense>
                         <v-col cols="12" md="4" sm="6">
-                            <v-date-input label="Date" v-model="trDate" prepend-inner-icon="$calendar" prepend-icon="" variant="outlined"></v-date-input>
+                            <v-date-input label="Date" v-model="trDate" prepend-inner-icon="$calendar" prepend-icon=""
+                                variant="outlined"></v-date-input>
                         </v-col>
 
                         <v-col cols="12" md="8" sm="6">
-                            <v-select clearable chips label="Account" v-model="trAccount" :items="accountIds" variant="outlined"></v-select>
+                            <v-select clearable chips label="Account" v-model="trAccount" :items="accountIds"
+                                variant="outlined"></v-select>
                         </v-col>
                     </v-row>
                     <v-row dense>
                         <v-col cols="12" md="8" sm="6">
-                            <v-text-field clearable label="Merchant" v-model="trMerchant" variant="outlined"></v-text-field>
+                            <v-text-field clearable label="Merchant" v-model="trMerchant"
+                                variant="outlined"></v-text-field>
                         </v-col>
                         <v-col cols="12" md="4" sm="6">
-                            <v-select chips label="Category" v-model="trCategory" :items="categoryNames" variant="outlined"></v-select>
+                            <v-select chips label="Category" v-model="trCategory" :items="categoryNames"
+                                variant="outlined"></v-select>
                         </v-col>
                     </v-row>
                     <v-row>
@@ -41,12 +46,14 @@
                             </v-radio-group>
                         </v-col>
                         <v-col cols="12" md="6" sm="10">
-                            <v-text-field clearable label="Amount" v-model="trAmount" prefix="$" variant="outlined"></v-text-field>
+                            <v-text-field clearable label="Amount" v-model="trAmount" prefix="$"
+                                variant="outlined"></v-text-field>
                         </v-col>
                     </v-row>
                     <v-row>
                         <v-col cols="12" sm="12">
-                            <v-textarea clearable label="Description" v-model="trDescription" variant="outlined" rows="2"></v-textarea>
+                            <v-textarea clearable label="Description" v-model="trDescription" variant="outlined"
+                                rows="2"></v-textarea>
                         </v-col>
                     </v-row>
                 </v-card-text>
@@ -101,6 +108,18 @@ const props = defineProps({
 const accountIds = computed(() => props.accounts.map((account) => account.account_id))
 const categoryNames = computed(() => props.categories.map((category) => category.category_name))
 
+const sortedTransactions = computed(() => {
+    return [...props.transactions].sort((a, b) => {
+        // Sort by date descending (newest first), then by ID descending as fallback
+        const dateA = new Date(a.transaction_date)
+        const dateB = new Date(b.transaction_date)
+        if (dateB.getTime() !== dateA.getTime()) {
+            return dateB.getTime() - dateA.getTime()
+        }
+        return b.transaction_id - a.transaction_id
+    })
+})
+
 const editTransaction = (transaction) => {
     trDateInMS.value = Date.parse(new Date(transaction.transaction_date))
     trId.value = transaction.transaction_id
@@ -154,5 +173,13 @@ const formatDateFromMilliseconds = (milliseconds) => {
     const day = String(date.getDate()).padStart(2, '0')
 
     return `${year}-${month}-${day}`
+}
+
+//Currency formatting function
+const formatCurrency = (amount) => {
+    if (amount < 0) {
+        return `-$${Math.abs(amount)}`
+    }
+    return `$${amount}`
 }
 </script>
