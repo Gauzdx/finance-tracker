@@ -443,27 +443,49 @@ h4 {
 /* iPhone specific adjustments */
 @media (max-width: 414px) {
     body {
-        padding-top: 0;
+        padding: 10px 15px 0 15px;
     }
     
     .container {
-        padding: 0 8px;
+        padding: 0;
         width: 100%;
+        margin: 0;
+    }
+
+    h1 {
+        font-size: 1.8em;
+        margin: 10px 0;
+        text-align: center;
     }
 
     h2 {
-        font-size: 1.2em;
-        margin: 8px 0;
+        font-size: 1.4em;
+        margin: 10px 0;
         padding: 0;
+        text-align: center;
+    }
+
+    h4 {
+        font-size: 0.9em;
+        margin: 5px 0;
     }
 
     .inc-exp-container {
-        padding: 10px;
-        margin: 8px 0;
+        padding: 15px;
+        margin: 10px 0;
     }
 
     .list li span:before {
         min-width: 70px;
         font-size: 0.85em;
+    }
+
+    .list {
+        margin-bottom: 20px;
+    }
+
+    .list li {
+        margin: 8px 0;
+        padding: 15px;
     }
 }
