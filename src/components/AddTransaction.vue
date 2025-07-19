@@ -23,16 +23,9 @@
                         </v-row>
                         <v-row dense>
                             <v-col cols="12" md="8" sm="6">
-                                <v-combobox 
-                                    clearable 
-                                    label="Merchant" 
-                                    v-model="trMerchant"
-                                    :items="merchantSuggestions"
-                                    variant="outlined"
-                                    :custom-filter="merchantFilter"
-                                    hide-no-data
-                                    :menu-props="{ maxHeight: '200px' }"
-                                ></v-combobox>
+                                <v-combobox clearable label="Merchant" v-model="trMerchant" :items="merchantSuggestions"
+                                    variant="outlined" :custom-filter="merchantFilter" hide-no-data
+                                    :menu-props="{ maxHeight: '200px' }"></v-combobox>
                             </v-col>
                             <v-col cols="12" md="4" sm="6">
                                 <v-select clearable chips label="Category" v-model="trCategory" :items="categoryNames"
@@ -81,6 +74,7 @@ import { ref, computed } from 'vue'
 import { uuid } from 'vue-uuid'
 import { useToast } from 'vue-toastification'
 import { VDateInput } from 'vuetify/labs/VDateInput'
+import axios from 'axios'
 
 const datePicker = ref({
     components: {
@@ -121,12 +115,12 @@ const categoryNames = computed(() => props.categories.map((category) => category
 // Get unique merchant names from historical transactions
 const merchantSuggestions = computed(() => {
     if (!props.transactions || props.transactions.length === 0) return []
-    
+
     const merchants = [...new Set(props.transactions
         .map(t => t.transaction_merchant)
         .filter(merchant => merchant && merchant.trim() !== '')
     )]
-    
+
     return merchants.sort((a, b) => a.localeCompare(b))
 })
 
@@ -175,53 +169,131 @@ const onSaveBtnClick = () => {
     emit('transactionSubmitted', transactionData)
 }
 
-const exportToCSV = () => {
-    if (!props.transactions || props.transactions.length === 0) {
-        toast.warning('No transactions to export.')
-        return
+const exportToCSV = async () => {
+    try {
+        toast.info('Fetching all transactions for export...')
+
+        // Fetch all transactions by following pagination
+        const allTransactions = await fetchAllTransactionsForExport()
+
+        if (!allTransactions || allTransactions.length === 0) {
+            toast.warning('No transactions to export.')
+            return
+        }
+
+        // Define CSV headers
+        const headers = [
+            'Date',
+            'Account',
+            'Merchant',
+            'Category',
+            'Type',
+            'Amount',
+            'Description'
+        ]
+
+        // Convert transactions to CSV format
+        const csvContent = [
+            headers.join(','), // Header row
+            ...allTransactions.map(transaction => [
+                transaction.transaction_date,
+                `"${transaction.transaction_account || ''}"`,
+                `"${transaction.transaction_merchant || ''}"`,
+                `"${transaction.transaction_category || ''}"`,
+                transaction.transaction_type || '',
+                transaction.transaction_charge || 0,
+                `"${transaction.transaction_description || ''}"`
+            ].join(','))
+        ].join('\n')
+
+        // Create and download the file
+        const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
+        const link = document.createElement('a')
+
+        if (link.download !== undefined) {
+            const url = URL.createObjectURL(blob)
+            link.setAttribute('href', url)
+            link.setAttribute('download', `transactions_${new Date().toISOString().slice(0, 10)}.csv`)
+            link.style.visibility = 'hidden'
+            document.body.appendChild(link)
+            link.click()
+            document.body.removeChild(link)
+
+            toast.success(`Successfully exported ${allTransactions.length} transactions!`)
+        } else {
+            toast.error('Export not supported in this browser.')
+        }
+    } catch (error) {
+        console.error('Export failed:', error)
+        toast.error('Failed to export transactions.')
+    }
+}
+
+// Function to fetch all transactions by following nextLink pagination
+const fetchAllTransactionsForExport = async () => {
+    let allTransactions = []
+    let nextUrl = '/data-api/rest/personaltransactions?$orderby=transaction_id desc'
+    let pageCount = 0
+
+    while (nextUrl) {
+        try {
+            pageCount++
+            console.log(`Fetching page ${pageCount}: ${nextUrl}`)
+
+            const response = await axios.get(nextUrl)
+            const data = response.data
+
+            console.log(`Page ${pageCount} response:`, {
+                recordCount: data.value?.length || 0,
+                hasNextLink: !!data.nextLink,
+                nextLink: data.nextLink
+            })
+
+            // Add current batch to all transactions
+            if (data.value && data.value.length > 0) {
+                allTransactions = [...allTransactions, ...data.value]
+                console.log(`Total transactions so far: ${allTransactions.length}`)
+            }
+
+            // Check if there's a next page
+            if (data.nextLink) {
+                try {
+                    // Handle both full URLs and relative paths
+                    if (data.nextLink.startsWith('http')) {
+                        // Full URL - extract the path and query
+                        const url = new URL(data.nextLink)
+                        nextUrl = url.pathname + url.search
+                    } else if (data.nextLink.startsWith('/')) {
+                        // Already a relative path starting with /
+                        nextUrl = data.nextLink
+                    } else {
+                        // Relative path without leading slash
+                        nextUrl = '/' + data.nextLink
+                    }
+
+                    console.log(`Next URL processed: ${nextUrl}`)
+
+                    // Show progress to user
+                    toast.info(`Fetched ${allTransactions.length} transactions, continuing...`)
+                } catch (urlError) {
+                    console.error('Error processing nextLink URL:', urlError)
+                    console.log('Raw nextLink:', data.nextLink)
+                    // Try using the nextLink as-is if URL parsing fails
+                    nextUrl = data.nextLink
+                }
+            } else {
+                nextUrl = null // No more pages
+                console.log('No more pages - pagination complete')
+            }
+
+        } catch (error) {
+            console.error('Error fetching transactions batch:', error)
+            toast.error(`Failed to fetch page ${pageCount}`)
+            throw error
+        }
     }
 
-    // Define CSV headers
-    const headers = [
-        'Date',
-        'Account',
-        'Merchant',
-        'Category',
-        'Type',
-        'Amount',
-        'Description'
-    ]
-
-    // Convert transactions to CSV format
-    const csvContent = [
-        headers.join(','), // Header row
-        ...props.transactions.map(transaction => [
-            transaction.transaction_date,
-            `"${transaction.transaction_account || ''}"`,
-            `"${transaction.transaction_merchant || ''}"`,
-            `"${transaction.transaction_category || ''}"`,
-            transaction.transaction_type || '',
-            transaction.transaction_charge || 0,
-            `"${transaction.transaction_description || ''}"`
-        ].join(','))
-    ].join('\n')
-
-    // Create and download the file
-    const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' })
-    const link = document.createElement('a')
-
-    if (link.download !== undefined) {
-        const url = URL.createObjectURL(blob)
-        link.setAttribute('href', url)
-        link.setAttribute('download', `transactions_${new Date().toISOString().slice(0, 10)}.csv`)
-        link.style.visibility = 'hidden'
-        document.body.appendChild(link)
-        link.click()
-        document.body.removeChild(link)
-
-        toast.success('Transactions exported successfully!')
-    } else {
-        toast.error('Export not supported in this browser.')
-    }
+    console.log(`Pagination complete. Total transactions fetched: ${allTransactions.length}`)
+    return allTransactions
 }
 </script>
