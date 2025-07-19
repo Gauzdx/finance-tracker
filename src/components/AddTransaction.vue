@@ -23,8 +23,16 @@
                         </v-row>
                         <v-row dense>
                             <v-col cols="12" md="8" sm="6">
-                                <v-text-field clearable label="Merchant" v-model="trMerchant"
-                                    variant="outlined"></v-text-field>
+                                <v-combobox 
+                                    clearable 
+                                    label="Merchant" 
+                                    v-model="trMerchant"
+                                    :items="merchantSuggestions"
+                                    variant="outlined"
+                                    :custom-filter="merchantFilter"
+                                    hide-no-data
+                                    :menu-props="{ maxHeight: '200px' }"
+                                ></v-combobox>
                             </v-col>
                             <v-col cols="12" md="4" sm="6">
                                 <v-select clearable chips label="Category" v-model="trCategory" :items="categoryNames"
@@ -109,6 +117,24 @@ const props = defineProps({
 })
 const accountIds = computed(() => props.accounts.map((account) => account.account_id))
 const categoryNames = computed(() => props.categories.map((category) => category.category_name))
+
+// Get unique merchant names from historical transactions
+const merchantSuggestions = computed(() => {
+    if (!props.transactions || props.transactions.length === 0) return []
+    
+    const merchants = [...new Set(props.transactions
+        .map(t => t.transaction_merchant)
+        .filter(merchant => merchant && merchant.trim() !== '')
+    )]
+    
+    return merchants.sort((a, b) => a.localeCompare(b))
+})
+
+// Custom filter function for merchant suggestions
+const merchantFilter = (item, queryText) => {
+    if (!queryText) return true
+    return item.toLowerCase().includes(queryText.toLowerCase())
+}
 
 const onSaveBtnClick = () => {
     //To-do:Add form validation below
