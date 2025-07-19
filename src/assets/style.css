@@ -440,6 +440,35 @@ h4 {
     }
 }
 
+/* Vuetify dialog button styling */
+.v-btn {
+    border: 1px solid #ddd !important;
+    border-radius: 6px !important;
+}
+
+.v-btn:hover {
+    border-color: #999 !important;
+    background-color: #f5f5f5 !important;
+}
+
+.v-btn[color="primary"] {
+    border-color: #1976d2 !important;
+    background-color: #1976d2 !important;
+    color: white !important;
+}
+
+.v-btn[color="primary"]:hover {
+    border-color: #1565c0 !important;
+    background-color: #1565c0 !important;
+}
+
+/* Dialog action buttons specific styling */
+.v-card-actions .v-btn {
+    min-width: 80px !important;
+    padding: 8px 16px !important;
+    margin: 0 4px !important;
+}
+
 /* iPhone specific adjustments */
 @media screen and (max-width: 414px) {
     body {
