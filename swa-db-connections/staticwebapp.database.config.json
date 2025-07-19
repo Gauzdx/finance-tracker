@@ -37,7 +37,10 @@
                     "actions": ["*"],
                     "role": "anonymous"
                 }
-            ]
+            ],
+            "rest": {
+                "methods": ["GET", "POST", "PUT", "PATCH", "DELETE"]
+            }
         },
         "categories": {
             "source": "dbo.categories",
