@@ -17,7 +17,7 @@ body {
     min-height: 100vh;
     margin: 0;
     padding-top: 20px;
-    font-family: 'Lato', sans-serif;
+    font-family: 'Arial', sans-serif;
     font-size: 18px;
 }
 
@@ -104,7 +104,7 @@ h4 {
     box-shadow: var(--box-shadow);
     color: #333;
     display: grid;
-    grid-template-columns: 100px 200px 1fr 120px 100px auto auto;
+    grid-template-columns: 100px 200px 1fr 150px 100px auto auto;
     gap: 12px;
     align-items: start;
     position: relative;

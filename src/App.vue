@@ -29,7 +29,7 @@ const categories = ref([])
 
 const fetchTransactions = async () => {
     try {
-        const response = await axios.get('/data-api/rest/personaltransactions')
+        const response = await axios.get('/data-api/rest/personaltransactions?$orderby=transaction_id desc')
         transactions.value = response.data.value
         console.log(`transaction`)
         console.log(transactions.value)
@@ -57,34 +57,34 @@ const fetchAllAccounts = async () => {
 }
 
 const createTransaction = async (transactionData) => {
-    try {
-        await axios.post('/data-api/rest/personaltransactions', {
-            transaction_date: transactionData[0].date,
-            transaction_account: transactionData[0].account,
-            transaction_merchant: transactionData[0].merchant,
-            transaction_category: transactionData[0].category,
-            transaction_type: transactionData[0].type,
-            transaction_amount: transactionData[0].amount,
-            transaction_charge: transactionData[0].charge,
-            transaction_description: transactionData[0].description
-        })
-        toast.success('Transaction added.')
-    } catch (error) {
-        console.error('Error creating data:', error)
-        toast.error('Error creating transaction.')
-    }
+    const roundedAmount = Math.round(transactionData[0].amount * 100) / 100
+    const roundedCharge = Math.round(transactionData[0].charge * 100) / 100
+
+    await axios.post('/data-api/rest/personaltransactions', {
+        transaction_date: transactionData[0].date,
+        transaction_account: transactionData[0].account,
+        transaction_merchant: transactionData[0].merchant,
+        transaction_category: transactionData[0].category,
+        transaction_type: transactionData[0].type,
+        transaction_amount: roundedAmount,
+        transaction_charge: roundedCharge,
+        transaction_description: transactionData[0].description
+    })
 }
 
 const updateTransaction = async (transactionData) => {
     try {
+        const roundedAmount = Math.round(transactionData.transaction_amount * 100) / 100
+        const roundedCharge = Math.round(transactionData.transaction_charge * 100) / 100
+
         await axios.put('/data-api/rest/personaltransactions/transaction_id/' + transactionData.transaction_id, {
             transaction_date: transactionData.transaction_date,
             transaction_account: transactionData.transaction_account,
             transaction_merchant: transactionData.transaction_merchant,
             transaction_category: transactionData.transaction_category,
             transaction_type: transactionData.transaction_type,
-            transaction_amount: transactionData.transaction_amount,
-            transaction_charge: transactionData.transaction_charge,
+            transaction_amount: roundedAmount,
+            transaction_charge: roundedCharge,
             transaction_description: transactionData.transaction_description
         })
         toast.success('Transaction edited.')
@@ -135,18 +135,19 @@ const expense = computed(() => {
 })
 
 //Add transaction
-const handleTransactionSubmitted = (transactionData) => {
-    transactions.value.push({
-        transaction_date: transactionData[0].date,
-        transaction_account: transactionData[0].account,
-        transaction_merchant: transactionData[0].merchant,
-        transaction_category: transactionData[0].category,
-        transaction_type: transactionData[0].type,
-        transaction_amount: transactionData[0].amount,
-        transaction_charge: transactionData[0].charge,
-        transaction_description: transactionData[0].description
-    })
-    createTransaction(transactionData)
+const handleTransactionSubmitted = async (transactionData) => {
+    try {
+        // Create transaction in database first
+        await createTransaction(transactionData)
+
+        // Refetch transactions to get the latest data with correct IDs
+        await fetchTransactions()
+
+        toast.success('Transaction added.')
+    } catch (error) {
+        console.error('Failed to add transaction:', error)
+        toast.error('Failed to add transaction.')
+    }
 }
 
 //Update Transaction

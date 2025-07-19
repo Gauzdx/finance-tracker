@@ -1,5 +1,5 @@
 <template>
-    <h3>History</h3>
+    <h3>Transaction History</h3>
     <ul id="list" class="list">
         <li v-for="transaction in sortedTransactions" :key="transaction.transaction_id"
             :class="transaction.transaction_charge < 0 ? 'minus' : 'plus'">
@@ -136,11 +136,13 @@ const editTransaction = (transaction) => {
 }
 
 const saveTransactionEdits = () => {
-    let updatedCharge = trAmount.value
+    const roundedAmount = Math.round(parseFloat(trAmount.value) * 100) / 100
+    let updatedCharge = roundedAmount
+    
     if (trTypeRadios.value === 'Debit') {
-        updatedCharge = trAmount.value * -1
+        updatedCharge = roundedAmount * -1
     } else {
-        updatedCharge = Math.abs(trAmount.value)
+        updatedCharge = Math.abs(roundedAmount)
     }
 
     trDateInMS.value = Date.parse(new Date(trDate.value))
@@ -152,8 +154,8 @@ const saveTransactionEdits = () => {
         transaction_merchant: trMerchant.value,
         transaction_category: trCategory.value,
         transaction_type: trTypeRadios.value,
-        transaction_amount: parseFloat(trAmount.value),
-        transaction_charge: parseFloat(updatedCharge),
+        transaction_amount: roundedAmount,
+        transaction_charge: updatedCharge,
         transaction_description: trDescription.value
     })
 

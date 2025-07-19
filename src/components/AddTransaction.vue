@@ -114,6 +114,8 @@ const onSaveBtnClick = () => {
     //To-do:Add form validation below
 
     const transactionData = []
+    const roundedAmount = Math.round(parseFloat(trAmount.value) * 100) / 100
+
     if (trTypeRadios.value == 'Debit') {
         transactionData.push({
             //id: uuid.v1(),
@@ -122,8 +124,8 @@ const onSaveBtnClick = () => {
             merchant: trMerchant.value,
             category: trCategory.value,
             type: trTypeRadios.value,
-            amount: parseFloat(trAmount.value),
-            charge: parseFloat(trAmount.value) * -1,
+            amount: roundedAmount,
+            charge: roundedAmount * -1,
             description: trDescription.value
         })
     } else {
@@ -134,8 +136,8 @@ const onSaveBtnClick = () => {
             merchant: trMerchant.value,
             category: trCategory.value,
             type: trTypeRadios.value,
-            amount: parseFloat(trAmount.value),
-            charge: parseFloat(trAmount.value),
+            amount: roundedAmount,
+            charge: roundedAmount,
             description: trDescription.value
         })
     }
