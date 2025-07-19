@@ -9,8 +9,8 @@
     },
     "runtime": {
         "pagination": {
-            "max-page-size": 100000,
-            "default-page-size": 100000
+            "max-page-size": 100,
+            "default-page-size": 100
         },
         "rest": {
             "enabled": true,

@@ -6,7 +6,10 @@
         <AddTransaction :accounts="accounts" :categories="categories" :transactions="transactions"
             @transactionSubmitted="handleTransactionSubmitted" />
         <TransactionList :accounts="accounts" :categories="categories" :transactions="transactions"
-            @transactionDeleted="handleTransactionDeleted" @transactionUpdated="handleTransactionUpdated" />
+            :isLoading="isLoading" :currentPage="currentPage" :totalPages="totalPages" :totalRecords="totalRecords"
+            :recordsPerPage="recordsPerPage" @transactionDeleted="handleTransactionDeleted"
+            @transactionUpdated="handleTransactionUpdated" @pageChanged="goToPage" @nextPage="nextPage"
+            @prevPage="prevPage" />
     </div>
 </template>
 
@@ -26,15 +29,98 @@ const toast = useToast()
 const transactions = ref([])
 const accounts = ref([])
 const categories = ref([])
+const currentPage = ref(1)
+const totalPages = ref(1)
+const totalRecords = ref(0)
+const recordsPerPage = 100
+const isLoading = ref(false)
 
-const fetchTransactions = async () => {
+// Store pagination links for navigation
+const paginationLinks = ref([])
+const currentPageUrl = ref('/data-api/rest/personaltransactions?$orderby=transaction_id desc')
+
+const fetchTransactions = async (page = 1) => {
     try {
-        const response = await axios.get('/data-api/rest/personaltransactions?$orderby=transaction_id desc')
-        transactions.value = response.data.value
-        console.log(`transaction`)
-        console.log(transactions.value)
+        isLoading.value = true
+
+        let url
+        if (page === 1) {
+            // First page - use base URL
+            url = '/data-api/rest/personaltransactions?$orderby=transaction_id desc'
+            currentPageUrl.value = url
+        } else if (paginationLinks.value[page - 1]) {
+            // Use stored pagination link for this page
+            url = paginationLinks.value[page - 1]
+        } else {
+            // Need to navigate through pages to get to the desired page
+            await navigateToPage(page)
+            return
+        }
+
+        const response = await axios.get(url)
+
+        transactions.value = response.data.value || []
+        currentPage.value = page
+
+        // Store the nextLink for next page navigation
+        if (response.data.nextLink && !paginationLinks.value[page]) {
+            const nextUrl = new URL(response.data.nextLink)
+            paginationLinks.value[page] = nextUrl.pathname + nextUrl.search
+        }
+
+        // Estimate total pages (since we don't have exact count)
+        if (response.data.nextLink) {
+            totalPages.value = Math.max(totalPages.value, page + 1)
+        } else {
+            totalPages.value = page // This is the last page
+        }
+
+        totalRecords.value = (page - 1) * recordsPerPage + transactions.value.length
+
+        console.log(`Fetched page ${page}: ${transactions.value.length} transactions`)
     } catch (error) {
-        console.log(error)
+        console.log('Error fetching transactions:', error)
+        toast.error('Failed to fetch transactions')
+    } finally {
+        isLoading.value = false
+    }
+}
+
+// Navigate through pages sequentially to reach target page
+const navigateToPage = async (targetPage) => {
+    try {
+        isLoading.value = true
+        let currentUrl = '/data-api/rest/personaltransactions?$orderby=transaction_id desc'
+
+        for (let page = 1; page <= targetPage; page++) {
+            const response = await axios.get(currentUrl)
+
+            if (page === targetPage) {
+                transactions.value = response.data.value || []
+                currentPage.value = page
+                totalRecords.value = (page - 1) * recordsPerPage + transactions.value.length
+
+                if (!response.data.nextLink) {
+                    totalPages.value = page
+                }
+                break
+            }
+
+            if (response.data.nextLink) {
+                const nextUrl = new URL(response.data.nextLink)
+                currentUrl = nextUrl.pathname + nextUrl.search
+                paginationLinks.value[page] = currentUrl
+            } else {
+                // No more pages available
+                totalPages.value = page
+                break
+            }
+        }
+    } catch (error) {
+        console.log('Error navigating to page:', error)
+        toast.error('Failed to navigate to page')
+    } finally {
+        isLoading.value = false
     }
 }
 
@@ -105,7 +191,7 @@ const deleteTransaction = async (id) => {
 }
 
 onMounted(() => {
-    fetchTransactions()
+    fetchTransactions(1) // Fetch first page
     fetchAllCategories()
     fetchAllAccounts()
 })
@@ -166,5 +252,22 @@ const handleTransactionUpdated = (updatedTransaction) => {
 const handleTransactionDeleted = (id) => {
     transactions.value = transactions.value.filter((transaction) => transaction.transaction_id !== id)
     deleteTransaction(id)
+}
+
+// Pagination functions
+const goToPage = (page) => {
+    if (page >= 1 && page !== currentPage.value) {
+        fetchTransactions(page)
+    }
+}
+
+const nextPage = () => {
+    goToPage(currentPage.value + 1)
+}
+
+const prevPage = () => {
+    if (currentPage.value > 1) {
+        goToPage(currentPage.value - 1)
+    }
 }
 </script>

@@ -12,6 +12,47 @@
             <button @click="editTransaction(transaction)" class="edit-btn">✏️</button>
         </li>
     </ul>
+    
+    <!-- Loading indicator -->
+    <div v-if="isLoading" class="loading-container">
+        <div class="loading-spinner">Loading transactions...</div>
+    </div>
+    
+    <!-- Pagination controls -->
+    <div v-if="!isLoading && (totalPages > 1 || currentPage > 1)" class="pagination-container">
+        <div class="pagination-info">
+            <span>Page {{ currentPage }} ({{ transactions.length }} transactions)</span>
+        </div>
+        
+        <div class="pagination-controls">
+            <button 
+                @click="emit('prevPage')" 
+                :disabled="currentPage <= 1"
+                class="pagination-btn"
+            >
+                ← Previous
+            </button>
+            
+            <div class="page-numbers">
+                <button 
+                    v-for="page in getVisiblePages()" 
+                    :key="page"
+                    @click="emit('pageChanged', page)"
+                    :class="['page-btn', { active: page === currentPage }]"
+                >
+                    {{ page }}
+                </button>
+            </div>
+            
+            <button 
+                @click="emit('nextPage')" 
+                :disabled="currentPage >= totalPages"
+                class="pagination-btn"
+            >
+                Next →
+            </button>
+        </div>
+    </div>
     <!-- Edit Transaction popup -->
     <div class="pa-4 text-center">
         <v-dialog v-model="dialog" max-width="600">
@@ -96,7 +137,7 @@ const trCharge = ref(null)
 const trDescription = ref(null)
 const dialog = ref(false)
 
-const emit = defineEmits(['transactionDeleted', 'transactionUpdated'])
+const emit = defineEmits(['transactionDeleted', 'transactionUpdated', 'pageChanged', 'nextPage', 'prevPage'])
 
 const props = defineProps({
     transactions: {
@@ -110,6 +151,26 @@ const props = defineProps({
     categories: {
         type: Array,
         required: true
+    },
+    isLoading: {
+        type: Boolean,
+        default: false
+    },
+    currentPage: {
+        type: Number,
+        default: 1
+    },
+    totalPages: {
+        type: Number,
+        default: 1
+    },
+    totalRecords: {
+        type: Number,
+        default: 0
+    },
+    recordsPerPage: {
+        type: Number,
+        default: 100
     }
 })
 
@@ -190,6 +251,22 @@ const saveTransactionEdits = () => {
 
 const deleteTransaction = (id) => {
     emit('transactionDeleted', id)
+}
+
+// Calculate visible page numbers for pagination
+const getVisiblePages = () => {
+    const pages = []
+    const maxVisible = 5 // Show max 5 page numbers
+    
+    // Always show current page and a few around it
+    const start = Math.max(1, props.currentPage - 2)
+    const end = Math.min(props.totalPages || props.currentPage + 2, props.currentPage + 2)
+    
+    for (let i = start; i <= end; i++) {
+        pages.push(i)
+    }
+    
+    return pages
 }
 
 //Date function
