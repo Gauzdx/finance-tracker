@@ -65,8 +65,9 @@
                         </v-col>
 
                         <v-col cols="12" md="8" sm="6">
-                            <v-select clearable chips label="Account" v-model="trAccount" :items="accountIds"
-                                variant="outlined"></v-select>
+                            <v-combobox clearable label="Account" v-model="trAccount" :items="accountIds"
+                                variant="outlined" :custom-filter="accountFilter" hide-no-data
+                                :menu-props="{ maxHeight: '200px' }"></v-combobox>
                         </v-col>
                     </v-row>
                     <v-row dense>
@@ -83,8 +84,9 @@
                             ></v-combobox>
                         </v-col>
                         <v-col cols="12" md="4" sm="6">
-                            <v-select chips label="Category" v-model="trCategory" :items="categoryNames"
-                                variant="outlined"></v-select>
+                            <v-combobox clearable label="Category" v-model="trCategory" :items="categoryNames"
+                                variant="outlined" :custom-filter="categoryFilter" hide-no-data
+                                :menu-props="{ maxHeight: '200px' }"></v-combobox>
                         </v-col>
                     </v-row>
                     <v-row>
@@ -124,9 +126,10 @@
 <script setup>
 import { ref, computed } from 'vue'
 import { VDateInput } from 'vuetify/labs/VDateInput'
+import { useToast } from 'vue-toastification'
 
 const trId = ref(null)
-const trDate = ref(null)
+const trDate = ref(new Date())
 const trDateInMS = ref(null)
 const trAccount = ref(null)
 const trMerchant = ref(null)
@@ -137,6 +140,7 @@ const trCharge = ref(null)
 const trDescription = ref(null)
 const dialog = ref(false)
 
+const toast = useToast()
 const emit = defineEmits(['transactionDeleted', 'transactionUpdated', 'pageChanged', 'nextPage', 'prevPage'])
 
 const props = defineProps({
@@ -195,6 +199,18 @@ const merchantFilter = (item, queryText) => {
     return item.toLowerCase().includes(queryText.toLowerCase())
 }
 
+// Custom filter function for category suggestions
+const categoryFilter = (item, queryText) => {
+    if (!queryText) return true
+    return item.toLowerCase().includes(queryText.toLowerCase())
+}
+
+// Custom filter function for account suggestions
+const accountFilter = (item, queryText) => {
+    if (!queryText) return true
+    return item.toLowerCase().includes(queryText.toLowerCase())
+}
+
 const sortedTransactions = computed(() => {
     return [...props.transactions].sort((a, b) => {
         // Sort by date descending (newest first), then by ID descending as fallback
@@ -223,6 +239,49 @@ const editTransaction = (transaction) => {
 }
 
 const saveTransactionEdits = () => {
+    // Form validation - check all required fields
+    if (!trDate.value) {
+        toast.error('Please select a date.')
+        return
+    }
+    
+    if (!trAccount.value) {
+        toast.error('Please select an account.')
+        return
+    }
+    
+    if (!trMerchant.value || trMerchant.value.trim() === '') {
+        toast.error('Please enter a merchant name.')
+        return
+    }
+    
+    if (!trCategory.value) {
+        toast.error('Please select a category.')
+        return
+    }
+    
+    if (!trTypeRadios.value) {
+        toast.error('Please select transaction type (Debit or Credit).')
+        return
+    }
+    
+    if (!trAmount.value || trAmount.value <= 0) {
+        toast.error('Please enter a valid amount greater than 0.')
+        return
+    }
+    
+    // Validate category is from dropdown list
+    if (trCategory.value && !categoryNames.value.includes(trCategory.value)) {
+        toast.error('Please select a valid category from the dropdown list.')
+        return
+    }
+    
+    // Validate account is from dropdown list
+    if (trAccount.value && !accountIds.value.includes(trAccount.value)) {
+        toast.error('Please select a valid account from the dropdown list.')
+        return
+    }
+
     const roundedAmount = Math.round(parseFloat(trAmount.value) * 100) / 100
     let updatedCharge = roundedAmount
     

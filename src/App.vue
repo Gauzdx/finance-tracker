@@ -5,7 +5,8 @@
         <IncomeExpense :income="+income" :expense="+expense" />
         <AddTransaction :accounts="accounts" :categories="categories" :transactions="transactions"
             @transactionSubmitted="handleTransactionSubmitted" />
-        <TransactionList :accounts="accounts" :categories="categories" :transactions="transactions"
+        <SearchTransaction @search="handleSearch" />
+        <TransactionList :accounts="accounts" :categories="categories" :transactions="filteredTransactions"
             :isLoading="isLoading" :currentPage="currentPage" :totalPages="totalPages" :totalRecords="totalRecords"
             :recordsPerPage="recordsPerPage" @transactionDeleted="handleTransactionDeleted"
             @transactionUpdated="handleTransactionUpdated" @pageChanged="goToPage" @nextPage="nextPage"
@@ -19,6 +20,7 @@ import Balance from './components/Balance.vue'
 import IncomeExpense from './components/IncomeExpense.vue'
 import TransactionList from './components/TransactionList.vue'
 import AddTransaction from './components/AddTransaction.vue'
+import SearchTransaction from './components/SearchTransaction.vue'
 
 import { useToast } from 'vue-toastification'
 import axios from 'axios'
@@ -34,6 +36,7 @@ const totalPages = ref(1)
 const totalRecords = ref(0)
 const recordsPerPage = 100
 const isLoading = ref(false)
+const searchQuery = ref('')
 
 // Store pagination links for navigation
 const paginationLinks = ref([])
@@ -126,7 +129,7 @@ const navigateToPage = async (targetPage) => {
 
 const fetchAllCategories = async () => {
     try {
-        const response = await axios.get('/data-api/rest/categories')
+        const response = await axios.get('/data-api/rest/categories?$orderby=category_name asc')
         categories.value = response.data.value
     } catch (error) {
         console.log(error)
@@ -196,14 +199,27 @@ onMounted(() => {
     fetchAllAccounts()
 })
 
+// Filtered transactions based on search query
+const filteredTransactions = computed(() => {
+    if (!searchQuery.value || searchQuery.value.trim() === '') {
+        return transactions.value
+    }
+
+    const query = searchQuery.value.toLowerCase().trim()
+    return transactions.value.filter(transaction =>
+        transaction.transaction_merchant &&
+        transaction.transaction_merchant.toLowerCase().includes(query)
+    )
+})
+
 const total = computed(() => {
-    return transactions.value.reduce((acc, transaction) => {
+    return filteredTransactions.value.reduce((acc, transaction) => {
         return acc + transaction.transaction_charge
     }, 0)
 })
 
 const income = computed(() => {
-    return transactions.value
+    return filteredTransactions.value
         .filter((transaction) => transaction.transaction_charge >= 0)
         .reduce((acc, transaction) => {
             return acc + transaction.transaction_charge
@@ -212,7 +228,7 @@ const income = computed(() => {
 })
 
 const expense = computed(() => {
-    return transactions.value
+    return filteredTransactions.value
         .filter((transaction) => transaction.transaction_charge < 0)
         .reduce((acc, transaction) => {
             return acc + transaction.transaction_charge
@@ -269,5 +285,10 @@ const prevPage = () => {
     if (currentPage.value > 1) {
         goToPage(currentPage.value - 1)
     }
+}
+
+// Handle search functionality
+const handleSearch = (query) => {
+    searchQuery.value = query
 }
 </script>

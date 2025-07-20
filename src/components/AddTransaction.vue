@@ -17,8 +17,9 @@
                             </v-col>
 
                             <v-col cols="12" md="8" sm="6">
-                                <v-select clearable chips label="Account" v-model="trAccount" :items="accountIds"
-                                    variant="outlined"></v-select>
+                                <v-combobox clearable label="Account" v-model="trAccount" :items="accountIds"
+                                    variant="outlined" :custom-filter="accountFilter" hide-no-data
+                                    :menu-props="{ maxHeight: '200px' }"></v-combobox>
                             </v-col>
                         </v-row>
                         <v-row dense>
@@ -28,8 +29,9 @@
                                     :menu-props="{ maxHeight: '200px' }"></v-combobox>
                             </v-col>
                             <v-col cols="12" md="4" sm="6">
-                                <v-select clearable chips label="Category" v-model="trCategory" :items="categoryNames"
-                                    variant="outlined"></v-select>
+                                <v-combobox clearable label="Category" v-model="trCategory" :items="categoryNames"
+                                    variant="outlined" :custom-filter="categoryFilter" hide-no-data
+                                    :menu-props="{ maxHeight: '200px' }"></v-combobox>
                             </v-col>
                         </v-row>
                         <v-row>
@@ -82,8 +84,7 @@ const datePicker = ref({
     }
 })
 
-//const trDate = ref(new Date().toISOString().slice(0, 10))
-const trDate = ref(null)
+const trDate = ref(new Date())
 const trAccount = ref(null)
 const trMerchant = ref(null)
 const trCategory = ref(null)
@@ -130,8 +131,69 @@ const merchantFilter = (item, queryText) => {
     return item.toLowerCase().includes(queryText.toLowerCase())
 }
 
+// Custom filter function for category suggestions
+const categoryFilter = (item, queryText) => {
+    if (!queryText) return true
+    return item.toLowerCase().includes(queryText.toLowerCase())
+}
+
+// Custom filter function for account suggestions
+const accountFilter = (item, queryText) => {
+    if (!queryText) return true
+    return item.toLowerCase().includes(queryText.toLowerCase())
+}
+
+// Helper function to format date in local timezone (avoid UTC conversion issues)
+const formatDateForDB = (date) => {
+    const year = date.getFullYear()
+    const month = String(date.getMonth() + 1).padStart(2, '0')
+    const day = String(date.getDate()).padStart(2, '0')
+    return `${year}-${month}-${day}`
+}
+
 const onSaveBtnClick = () => {
-    //To-do:Add form validation below
+    // Form validation - check all required fields
+    if (!trDate.value) {
+        toast.error('Please select a date.')
+        return
+    }
+    
+    if (!trAccount.value) {
+        toast.error('Please select an account.')
+        return
+    }
+    
+    if (!trMerchant.value || trMerchant.value.trim() === '') {
+        toast.error('Please enter a merchant name.')
+        return
+    }
+    
+    if (!trCategory.value) {
+        toast.error('Please select a category.')
+        return
+    }
+    
+    if (!trTypeRadios.value) {
+        toast.error('Please select transaction type (Debit or Credit).')
+        return
+    }
+    
+    if (!trAmount.value || trAmount.value <= 0) {
+        toast.error('Please enter a valid amount greater than 0.')
+        return
+    }
+    
+    // Validate category is from dropdown list
+    if (trCategory.value && !categoryNames.value.includes(trCategory.value)) {
+        toast.error('Please select a valid category from the dropdown list.')
+        return
+    }
+    
+    // Validate account is from dropdown list
+    if (trAccount.value && !accountIds.value.includes(trAccount.value)) {
+        toast.error('Please select a valid account from the dropdown list.')
+        return
+    }
 
     const transactionData = []
     const roundedAmount = Math.round(parseFloat(trAmount.value) * 100) / 100
@@ -139,7 +201,7 @@ const onSaveBtnClick = () => {
     if (trTypeRadios.value == 'Debit') {
         transactionData.push({
             //id: uuid.v1(),
-            date: trDate.value.toISOString().slice(0, 10),
+            date: formatDateForDB(trDate.value),
             account: trAccount.value,
             merchant: trMerchant.value,
             category: trCategory.value,
@@ -151,7 +213,7 @@ const onSaveBtnClick = () => {
     } else {
         transactionData.push({
             //id: uuid.v1(),
-            date: trDate.value.toISOString().slice(0, 10),
+            date: formatDateForDB(trDate.value),
             account: trAccount.value,
             merchant: trMerchant.value,
             category: trCategory.value,
@@ -213,7 +275,7 @@ const exportToCSV = async () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob)
             link.setAttribute('href', url)
-            link.setAttribute('download', `transactions_${new Date().toISOString().slice(0, 10)}.csv`)
+            link.setAttribute('download', `transactions_${formatDateForDB(new Date())}.csv`)
             link.style.visibility = 'hidden'
             document.body.appendChild(link)
             link.click()
