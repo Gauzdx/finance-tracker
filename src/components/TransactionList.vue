@@ -10,7 +10,7 @@
             <span>{{ transaction.transaction_merchant }}</span>
             <span>{{ transaction.transaction_category }}</span>
             <span>{{ formatCurrency(transaction.transaction_charge) }}</span>
-            <button @click="deleteTransaction(transaction.transaction_id)" class="delete-btn">❌</button>
+            <button @click="confirmDelete(transaction)" class="delete-btn">❌</button>
             <button @click="editTransaction(transaction)" class="edit-btn">✏️</button>
         </li>
     </ul>
@@ -132,6 +132,34 @@
                 </v-card-actions>
             </v-card>
         </v-dialog>
+        
+        <!-- Delete Confirmation Dialog -->
+        <v-dialog v-model="deleteDialog" max-width="400">
+            <v-card>
+                <v-card-title class="text-h6">
+                    🗑️ Confirm Delete
+                </v-card-title>
+                
+                <v-card-text>
+                    <p>Are you sure you want to delete this transaction?</p>
+                    <div v-if="transactionToDelete" class="transaction-preview">
+                        <strong>Date:</strong> {{ transactionToDelete.transaction_date }}<br>
+                        <strong>Merchant:</strong> {{ transactionToDelete.transaction_merchant }}<br>
+                        <strong>Amount:</strong> {{ formatCurrency(transactionToDelete.transaction_charge) }}<br>
+                        <strong>Category:</strong> {{ transactionToDelete.transaction_category }}
+                    </div>
+                    <p class="text-error mt-3">This action cannot be undone.</p>
+                </v-card-text>
+                
+                <v-divider></v-divider>
+                
+                <v-card-actions>
+                    <v-spacer></v-spacer>
+                    <v-btn text="❌" variant="text" @click="cancelDelete"></v-btn>
+                    <v-btn color="error" text="🗑️" variant="text" @click="confirmDeleteAction"></v-btn>
+                </v-card-actions>
+            </v-card>
+        </v-dialog>
     </div>
 </template>
 
@@ -151,6 +179,10 @@ const trAmount = ref(null)
 const trCharge = ref(null)
 const trDescription = ref(null)
 const dialog = ref(false)
+
+// Delete confirmation state
+const deleteDialog = ref(false)
+const transactionToDelete = ref(null)
 
 // Tooltip state
 const showTooltip = ref(false)
@@ -324,6 +356,25 @@ const saveTransactionEdits = () => {
     })
 
     dialog.value = false
+}
+
+// Delete confirmation functions
+const confirmDelete = (transaction) => {
+    transactionToDelete.value = transaction
+    deleteDialog.value = true
+}
+
+const cancelDelete = () => {
+    deleteDialog.value = false
+    transactionToDelete.value = null
+}
+
+const confirmDeleteAction = () => {
+    if (transactionToDelete.value) {
+        emit('transactionDeleted', transactionToDelete.value.transaction_id)
+        deleteDialog.value = false
+        transactionToDelete.value = null
+    }
 }
 
 const deleteTransaction = (id) => {
@@ -504,5 +555,20 @@ const formatCurrency = (amount) => {
     .description-tooltip::before {
         left: 20px;
     }
+}
+
+/* Delete confirmation dialog styles */
+.transaction-preview {
+    background-color: #f5f5f5;
+    padding: 12px;
+    border-radius: 6px;
+    margin: 12px 0;
+    border-left: 4px solid #ff5722;
+    line-height: 1.5;
+}
+
+.text-error {
+    color: #d32f2f !important;
+    font-weight: 500;
 }
 </style>
