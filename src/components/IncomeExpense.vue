@@ -27,9 +27,10 @@ const props = defineProps({
 
 //Currency formatting function
 const formatCurrency = (amount) => {
+    const formattedAmount = Math.abs(amount).toFixed(2)
     if (amount < 0) {
-        return `-$${Math.abs(amount)}`
+        return `-$${formattedAmount}`
     }
-    return `$${amount}`
+    return `$${formattedAmount}`
 }
 </script>

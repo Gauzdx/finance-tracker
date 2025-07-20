@@ -342,8 +342,8 @@ const formatDateFromMilliseconds = (milliseconds) => {
 //Currency formatting function
 const formatCurrency = (amount) => {
     if (amount < 0) {
-        return `-$${Math.abs(amount)}`
+        return `-$${Math.abs(amount).toFixed(2)}`
     }
-    return `$${amount}`
+    return `$${amount.toFixed(2)}`
 }
 </script>

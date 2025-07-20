@@ -2,10 +2,10 @@
     <PageHeader />
     <div class="container">
         <Balance :total="total" />
-        <IncomeExpense :income="+income" :expense="+expense" />
+        <IncomeExpense :income="parseFloat(income)" :expense="parseFloat(expense)" />
         <AddTransaction :accounts="accounts" :categories="categories" :transactions="transactions"
             @transactionSubmitted="handleTransactionSubmitted" />
-        <SearchTransaction @search="handleSearch" />
+        <SearchTransaction :accounts="accounts" :categories="categories" @filter="handleFilter" />
         <TransactionList :accounts="accounts" :categories="categories" :transactions="filteredTransactions"
             :isLoading="isLoading" :currentPage="currentPage" :totalPages="totalPages" :totalRecords="totalRecords"
             :recordsPerPage="recordsPerPage" @transactionDeleted="handleTransactionDeleted"
@@ -37,6 +37,8 @@ const totalRecords = ref(0)
 const recordsPerPage = 100
 const isLoading = ref(false)
 const searchQuery = ref('')
+const accountFilter = ref('')
+const categoryFilter = ref('')
 
 // Store pagination links for navigation
 const paginationLinks = ref([])
@@ -199,17 +201,34 @@ onMounted(() => {
     fetchAllAccounts()
 })
 
-// Filtered transactions based on search query
+// Filtered transactions based on search query and filters
 const filteredTransactions = computed(() => {
-    if (!searchQuery.value || searchQuery.value.trim() === '') {
-        return transactions.value
+    let filtered = transactions.value
+
+    // Filter by merchant search
+    if (searchQuery.value && searchQuery.value.trim() !== '') {
+        const merchantQuery = searchQuery.value.toLowerCase().trim()
+        filtered = filtered.filter(transaction =>
+            transaction.transaction_merchant &&
+            transaction.transaction_merchant.toLowerCase().includes(merchantQuery)
+        )
     }
 
-    const query = searchQuery.value.toLowerCase().trim()
-    return transactions.value.filter(transaction =>
-        transaction.transaction_merchant &&
-        transaction.transaction_merchant.toLowerCase().includes(query)
-    )
+    // Filter by account
+    if (accountFilter.value && accountFilter.value.trim() !== '') {
+        filtered = filtered.filter(transaction =>
+            transaction.transaction_account === accountFilter.value
+        )
+    }
+
+    // Filter by category
+    if (categoryFilter.value && categoryFilter.value.trim() !== '') {
+        filtered = filtered.filter(transaction =>
+            transaction.transaction_category === categoryFilter.value
+        )
+    }
+
+    return filtered
 })
 
 const total = computed(() => {
@@ -287,8 +306,10 @@ const prevPage = () => {
     }
 }
 
-// Handle search functionality
-const handleSearch = (query) => {
-    searchQuery.value = query
+// Handle filter functionality
+const handleFilter = (filters) => {
+    searchQuery.value = filters.merchant
+    accountFilter.value = filters.account
+    categoryFilter.value = filters.category
 }
 </script>
