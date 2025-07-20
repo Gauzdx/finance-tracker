@@ -359,3 +359,60 @@ const fetchAllTransactionsForExport = async () => {
     return allTransactions
 }
 </script>
+
+<style scoped>
+/* Fix date picker visibility issues */
+:deep(.v-date-picker) {
+    background-color: white !important;
+}
+
+:deep(.v-date-picker .v-btn--variant-text) {
+    color: #333 !important;
+}
+
+:deep(.v-date-picker .v-btn--active) {
+    background-color: #1976d2 !important;
+    color: white !important;
+}
+
+:deep(.v-date-picker .v-btn--selected) {
+    background-color: #1976d2 !important;
+    color: white !important;
+}
+
+:deep(.v-date-picker-month__day--selected) {
+    background-color: #1976d2 !important;
+    color: white !important;
+}
+
+:deep(.v-date-picker-month__day--today) {
+    border: 2px solid #1976d2 !important;
+    color: #1976d2 !important;
+}
+
+:deep(.v-date-picker-header) {
+    background-color: white !important;
+    color: #333 !important;
+}
+
+:deep(.v-date-picker-header .v-btn) {
+    color: #333 !important;
+}
+
+:deep(.v-date-picker-month__day) {
+    color: #333 !important;
+}
+
+:deep(.v-date-picker-month__weekday) {
+    color: #666 !important;
+}
+
+/* Fix date input field text visibility */
+:deep(.v-field__input) {
+    color: #333 !important;
+}
+
+:deep(.v-field--active .v-field__input) {
+    color: #333 !important;
+}
+</style>

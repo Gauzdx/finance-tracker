@@ -2,7 +2,9 @@
     <h3>Transaction History</h3>
     <ul id="list" class="list">
         <li v-for="transaction in sortedTransactions" :key="transaction.transaction_id"
-            :class="transaction.transaction_charge < 0 ? 'minus' : 'plus'">
+            :class="transaction.transaction_charge < 0 ? 'minus' : 'plus'"
+            @mouseenter="handleMouseEnter(transaction, $event)"
+            @mouseleave="handleMouseLeave">
             <span>{{ transaction.transaction_date }}</span>
             <span>{{ transaction.transaction_account }}</span>
             <span>{{ transaction.transaction_merchant }}</span>
@@ -12,6 +14,16 @@
             <button @click="editTransaction(transaction)" class="edit-btn">✏️</button>
         </li>
     </ul>
+    
+    <!-- Description tooltip -->
+    <div v-if="showTooltip && tooltipContent" 
+         class="description-tooltip" 
+         :style="tooltipStyle">
+        <div class="tooltip-content">
+            <strong>Description:</strong><br>
+            {{ tooltipContent }}
+        </div>
+    </div>
     
     <!-- Loading indicator -->
     <div v-if="isLoading" class="loading-container">
@@ -139,6 +151,12 @@ const trAmount = ref(null)
 const trCharge = ref(null)
 const trDescription = ref(null)
 const dialog = ref(false)
+
+// Tooltip state
+const showTooltip = ref(false)
+const tooltipContent = ref('')
+const tooltipStyle = ref({})
+let hoverTimeout = null
 
 const toast = useToast()
 const emit = defineEmits(['transactionDeleted', 'transactionUpdated', 'pageChanged', 'nextPage', 'prevPage'])
@@ -312,6 +330,44 @@ const deleteTransaction = (id) => {
     emit('transactionDeleted', id)
 }
 
+// Tooltip hover handlers
+const handleMouseEnter = (transaction, event) => {
+    // Clear any existing timeout
+    if (hoverTimeout) {
+        clearTimeout(hoverTimeout)
+    }
+    
+    // Only show tooltip if description exists and is not empty
+    if (transaction.transaction_description && transaction.transaction_description.trim() !== '') {
+        hoverTimeout = setTimeout(() => {
+            tooltipContent.value = transaction.transaction_description
+            
+            // Position tooltip near the mouse cursor
+            const rect = event.target.closest('li').getBoundingClientRect()
+            tooltipStyle.value = {
+                position: 'fixed',
+                left: `${event.clientX + 10}px`,
+                top: `${event.clientY - 10}px`,
+                zIndex: 1000
+            }
+            
+            showTooltip.value = true
+        }, 1000) // Show after 1 second
+    }
+}
+
+const handleMouseLeave = () => {
+    // Clear timeout if mouse leaves before 1 second
+    if (hoverTimeout) {
+        clearTimeout(hoverTimeout)
+        hoverTimeout = null
+    }
+    
+    // Hide tooltip
+    showTooltip.value = false
+    tooltipContent.value = ''
+}
+
 // Calculate visible page numbers for pagination
 const getVisiblePages = () => {
     const pages = []
@@ -347,3 +403,106 @@ const formatCurrency = (amount) => {
     return `$${amount.toFixed(2)}`
 }
 </script>
+
+<style scoped>
+/* Fix date picker visibility issues */
+:deep(.v-date-picker) {
+    background-color: white !important;
+}
+
+:deep(.v-date-picker .v-btn--variant-text) {
+    color: #333 !important;
+}
+
+:deep(.v-date-picker .v-btn--active) {
+    background-color: #1976d2 !important;
+    color: white !important;
+}
+
+:deep(.v-date-picker .v-btn--selected) {
+    background-color: #1976d2 !important;
+    color: white !important;
+}
+
+:deep(.v-date-picker-month__day--selected) {
+    background-color: #1976d2 !important;
+    color: white !important;
+}
+
+:deep(.v-date-picker-month__day--today) {
+    border: 2px solid #1976d2 !important;
+    color: #1976d2 !important;
+}
+
+:deep(.v-date-picker-header) {
+    background-color: white !important;
+    color: #333 !important;
+}
+
+:deep(.v-date-picker-header .v-btn) {
+    color: #333 !important;
+}
+
+:deep(.v-date-picker-month__day) {
+    color: #333 !important;
+}
+
+:deep(.v-date-picker-month__weekday) {
+    color: #666 !important;
+}
+
+/* Fix date input field text visibility */
+:deep(.v-field__input) {
+    color: #333 !important;
+}
+
+:deep(.v-field--active .v-field__input) {
+    color: #333 !important;
+}
+
+/* Description tooltip styles */
+.description-tooltip {
+    position: fixed;
+    background-color: #333;
+    color: white;
+    padding: 8px 12px;
+    border-radius: 6px;
+    font-size: 14px;
+    max-width: 300px;
+    word-wrap: break-word;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    pointer-events: none;
+    z-index: 1000;
+}
+
+.tooltip-content {
+    line-height: 1.4;
+}
+
+.description-tooltip::before {
+    content: '';
+    position: absolute;
+    top: -5px;
+    left: 10px;
+    border-left: 5px solid transparent;
+    border-right: 5px solid transparent;
+    border-bottom: 5px solid #333;
+}
+
+/* Mobile tooltip adjustments */
+@media (max-width: 768px) {
+    .description-tooltip {
+        position: fixed;
+        left: 10px !important;
+        right: 10px !important;
+        max-width: none;
+        width: auto;
+        font-size: 16px;
+        padding: 12px 16px;
+    }
+    
+    .description-tooltip::before {
+        left: 20px;
+    }
+}
+</style>

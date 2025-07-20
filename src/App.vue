@@ -39,6 +39,8 @@ const isLoading = ref(false)
 const searchQuery = ref('')
 const accountFilter = ref('')
 const categoryFilter = ref('')
+const fromDateFilter = ref('')
+const toDateFilter = ref('')
 
 // Store pagination links for navigation
 const paginationLinks = ref([])
@@ -228,6 +230,19 @@ const filteredTransactions = computed(() => {
         )
     }
 
+    // Filter by date range
+    if (fromDateFilter.value && fromDateFilter.value.trim() !== '') {
+        filtered = filtered.filter(transaction =>
+            transaction.transaction_date >= fromDateFilter.value
+        )
+    }
+
+    if (toDateFilter.value && toDateFilter.value.trim() !== '') {
+        filtered = filtered.filter(transaction =>
+            transaction.transaction_date <= toDateFilter.value
+        )
+    }
+
     return filtered
 })
 
@@ -311,5 +326,7 @@ const handleFilter = (filters) => {
     searchQuery.value = filters.merchant
     accountFilter.value = filters.account
     categoryFilter.value = filters.category
+    fromDateFilter.value = filters.fromDate
+    toDateFilter.value = filters.toDate
 }
 </script>
