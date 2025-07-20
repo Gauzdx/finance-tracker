@@ -1,5 +1,5 @@
 <template>
-    <h3>Transaction History</h3>
+    <h3>Transaction History ({{ transactions.length }})</h3>
     <ul id="list" class="list">
         <li v-for="transaction in sortedTransactions" :key="transaction.transaction_id"
             :class="transaction.transaction_charge < 0 ? 'minus' : 'plus'"
