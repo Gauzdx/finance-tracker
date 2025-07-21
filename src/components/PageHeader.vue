@@ -1,3 +1,3 @@
 <template>
-    <h2>Gullak</h2>
+    <h2>GULLAK</h2>
 </template>
