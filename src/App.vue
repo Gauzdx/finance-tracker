@@ -1,16 +1,41 @@
 <template>
-    <PageHeader />
-    <div class="container">
-        <Balance :total="total" />
-        <IncomeExpense :income="parseFloat(income)" :expense="parseFloat(expense)" />
-        <AddTransaction :accounts="accounts" :categories="categories" :transactions="transactions"
-            @transactionSubmitted="handleTransactionSubmitted" />
-        <SearchTransaction :accounts="accounts" :categories="categories" @filter="handleFilter" />
-        <TransactionList :accounts="accounts" :categories="categories" :transactions="filteredTransactions"
-            :isLoading="isLoading" :currentPage="currentPage" :totalPages="totalPages" :totalRecords="totalRecords"
-            :recordsPerPage="recordsPerPage" @transactionDeleted="handleTransactionDeleted"
-            @transactionUpdated="handleTransactionUpdated" @pageChanged="goToPage" @nextPage="nextPage"
-            @prevPage="prevPage" />
+    <!-- Global Loading Spinner -->
+    <div v-if="isInitialLoading" class="global-loading-overlay">
+        <div class="global-loading-spinner">
+            <div class="spinner"></div>
+            <p class="loading-text">Loading your financial data...</p>
+            <div class="loading-progress">
+                <div class="progress-item" :class="{ completed: transactionsLoaded }">
+                    <span class="progress-icon">{{ transactionsLoaded ? '✓' : '○' }}</span>
+                    Transactions
+                </div>
+                <div class="progress-item" :class="{ completed: categoriesLoaded }">
+                    <span class="progress-icon">{{ categoriesLoaded ? '✓' : '○' }}</span>
+                    Categories
+                </div>
+                <div class="progress-item" :class="{ completed: accountsLoaded }">
+                    <span class="progress-icon">{{ accountsLoaded ? '✓' : '○' }}</span>
+                    Accounts
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Main App Content -->
+    <div v-else>
+        <PageHeader />
+        <div class="container">
+            <Balance :total="total" />
+            <IncomeExpense :income="parseFloat(income)" :expense="parseFloat(expense)" />
+            <AddTransaction :accounts="accounts" :categories="categories" :transactions="transactions"
+                @transactionSubmitted="handleTransactionSubmitted" />
+            <SearchTransaction :accounts="accounts" :categories="categories" @filter="handleFilter" />
+            <TransactionList :accounts="accounts" :categories="categories" :transactions="filteredTransactions"
+                :isLoading="isLoading" :currentPage="currentPage" :totalPages="totalPages" :totalRecords="totalRecords"
+                :recordsPerPage="recordsPerPage" @transactionDeleted="handleTransactionDeleted"
+                @transactionUpdated="handleTransactionUpdated" @pageChanged="goToPage" @nextPage="nextPage"
+                @prevPage="prevPage" />
+        </div>
     </div>
 </template>
 
@@ -41,6 +66,12 @@ const accountFilter = ref('')
 const categoryFilter = ref('')
 const fromDateFilter = ref('')
 const toDateFilter = ref('')
+
+// Global loading state
+const isInitialLoading = ref(true)
+const transactionsLoaded = ref(false)
+const categoriesLoaded = ref(false)
+const accountsLoaded = ref(false)
 
 // Store pagination links for navigation
 const paginationLinks = ref([])
@@ -85,9 +116,20 @@ const fetchTransactions = async (page = 1) => {
         totalRecords.value = (page - 1) * recordsPerPage + transactions.value.length
 
         console.log(`Fetched page ${page}: ${transactions.value.length} transactions`)
+        
+        // Mark transactions as loaded for initial load
+        if (page === 1) {
+            transactionsLoaded.value = true
+            checkInitialLoadComplete()
+        }
     } catch (error) {
         console.log('Error fetching transactions:', error)
         toast.error('Failed to fetch transactions')
+        // Still mark as loaded even on error to prevent infinite loading
+        if (page === 1) {
+            transactionsLoaded.value = true
+            checkInitialLoadComplete()
+        }
     } finally {
         isLoading.value = false
     }
@@ -135,8 +177,13 @@ const fetchAllCategories = async () => {
     try {
         const response = await axios.get('/data-api/rest/categories?$orderby=category_name asc')
         categories.value = response.data.value
+        categoriesLoaded.value = true
+        checkInitialLoadComplete()
     } catch (error) {
         console.log(error)
+        // Still mark as loaded even on error to prevent infinite loading
+        categoriesLoaded.value = true
+        checkInitialLoadComplete()
     }
 }
 
@@ -144,8 +191,13 @@ const fetchAllAccounts = async () => {
     try {
         const response = await axios.get('/data-api/rest/accounts')
         accounts.value = response.data.value
+        accountsLoaded.value = true
+        checkInitialLoadComplete()
     } catch (error) {
         console.log(error)
+        // Still mark as loaded even on error to prevent infinite loading
+        accountsLoaded.value = true
+        checkInitialLoadComplete()
     }
 }
 
@@ -194,6 +246,16 @@ const deleteTransaction = async (id) => {
     } catch (error) {
         console.error('Error deleting data:', error)
         toast.error('Error deleting transaction.')
+    }
+}
+
+// Check if all initial data is loaded
+const checkInitialLoadComplete = () => {
+    if (transactionsLoaded.value && categoriesLoaded.value && accountsLoaded.value) {
+        // Add a small delay to show the completion state briefly
+        setTimeout(() => {
+            isInitialLoading.value = false
+        }, 500)
     }
 }
 
