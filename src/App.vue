@@ -5,18 +5,24 @@
             <div class="spinner"></div>
             <p class="loading-text">Loading your financial data...</p>
             <div class="loading-progress">
-                <div class="progress-item" :class="{ completed: transactionsLoaded }">
-                    <span class="progress-icon">{{ transactionsLoaded ? '✓' : '○' }}</span>
+                <div class="progress-item" :class="{ completed: transactionsLoaded, error: transactionsError }">
+                    <span class="progress-icon">{{ transactionsLoaded ? '✓' : transactionsError ? '✗' : '○' }}</span>
                     Transactions
                 </div>
-                <div class="progress-item" :class="{ completed: categoriesLoaded }">
-                    <span class="progress-icon">{{ categoriesLoaded ? '✓' : '○' }}</span>
+                <div class="progress-item" :class="{ completed: categoriesLoaded, error: categoriesError }">
+                    <span class="progress-icon">{{ categoriesLoaded ? '✓' : categoriesError ? '✗' : '○' }}</span>
                     Categories
                 </div>
-                <div class="progress-item" :class="{ completed: accountsLoaded }">
-                    <span class="progress-icon">{{ accountsLoaded ? '✓' : '○' }}</span>
+                <div class="progress-item" :class="{ completed: accountsLoaded, error: accountsError }">
+                    <span class="progress-icon">{{ accountsLoaded ? '✓' : accountsError ? '✗' : '○' }}</span>
                     Accounts
                 </div>
+            </div>
+            
+            <!-- Show error message and retry button if any errors occurred -->
+            <div v-if="transactionsError || categoriesError || accountsError" class="loading-error">
+                <p class="error-message">Failed to load some data. Please check your connection and try again.</p>
+                <button @click="retryDataFetch" class="retry-button">🔄 Retry</button>
             </div>
         </div>
     </div>
@@ -72,6 +78,9 @@ const isInitialLoading = ref(true)
 const transactionsLoaded = ref(false)
 const categoriesLoaded = ref(false)
 const accountsLoaded = ref(false)
+const transactionsError = ref(false)
+const categoriesError = ref(false)
+const accountsError = ref(false)
 
 // Store pagination links for navigation
 const paginationLinks = ref([])
@@ -125,11 +134,12 @@ const fetchTransactions = async (page = 1) => {
     } catch (error) {
         console.log('Error fetching transactions:', error)
         toast.error('Failed to fetch transactions')
-        // Still mark as loaded even on error to prevent infinite loading
+        // Mark as error for initial load
         if (page === 1) {
-            transactionsLoaded.value = true
-            checkInitialLoadComplete()
+            transactionsError.value = true
         }
+        // DO NOT mark as loaded on error - keep loading spinner active
+        // This will prevent the app from proceeding with incomplete data
     } finally {
         isLoading.value = false
     }
@@ -181,9 +191,10 @@ const fetchAllCategories = async () => {
         checkInitialLoadComplete()
     } catch (error) {
         console.log(error)
-        // Still mark as loaded even on error to prevent infinite loading
-        categoriesLoaded.value = true
-        checkInitialLoadComplete()
+        toast.error('Failed to fetch categories')
+        categoriesError.value = true
+        // DO NOT mark as loaded on error - keep loading spinner active
+        // This will prevent the app from proceeding with incomplete data
     }
 }
 
@@ -195,9 +206,10 @@ const fetchAllAccounts = async () => {
         checkInitialLoadComplete()
     } catch (error) {
         console.log(error)
-        // Still mark as loaded even on error to prevent infinite loading
-        accountsLoaded.value = true
-        checkInitialLoadComplete()
+        toast.error('Failed to fetch accounts')
+        accountsError.value = true
+        // DO NOT mark as loaded on error - keep loading spinner active
+        // This will prevent the app from proceeding with incomplete data
     }
 }
 
@@ -257,6 +269,29 @@ const checkInitialLoadComplete = () => {
             isInitialLoading.value = false
         }, 500)
     }
+}
+
+// Retry data fetching
+const retryDataFetch = () => {
+    // Store which items had errors before resetting
+    const hadTransactionError = transactionsError.value
+    const hadCategoryError = categoriesError.value
+    const hadAccountError = accountsError.value
+    
+    // Reset error states
+    transactionsError.value = false
+    categoriesError.value = false
+    accountsError.value = false
+    
+    // Reset loaded states for failed items
+    if (hadTransactionError) transactionsLoaded.value = false
+    if (hadCategoryError) categoriesLoaded.value = false
+    if (hadAccountError) accountsLoaded.value = false
+    
+    // Retry failed requests
+    if (hadTransactionError) fetchTransactions(1)
+    if (hadCategoryError) fetchAllCategories()
+    if (hadAccountError) fetchAllAccounts()
 }
 
 onMounted(() => {
