@@ -4,8 +4,49 @@
     --box-shadow: 0 1px 3px rgba(0, 0, 0, 0.12), 0 1px 2px rgba(0, 0, 0, 0.24);
 }
 
+/* Prevent horizontal scroll globally */
+html {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
+}
+
+#app {
+    width: 100%;
+    max-width: 100%;
+    overflow-x: hidden;
+}
+
+/* Mobile button centering - High specificity override */
+@media (max-width: 768px) {
+    div.pa-4.text-center div.d-flex.justify-center {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        text-align: center !important;
+        gap: 8px !important;
+    }
+
+    div.pa-4.text-center div.d-flex.justify-center button.v-btn {
+        width: 100% !important;
+        max-width: 300px !important;
+        margin: 4px auto !important;
+        display: block !important;
+        text-align: center !important;
+    }
+}
+
 * {
     box-sizing: border-box;
+}
+
+html,
+body {
+    overflow-x: hidden;
+    width: 100%;
+    max-width: 100%;
 }
 
 body {
@@ -23,12 +64,36 @@ body {
 
 .container {
     margin: 30px auto;
-    width: 1000px;
+    width: 100%;
+    max-width: 1000px;
+    padding: 0 20px;
 }
 
 h1 {
     letter-spacing: 1px;
     margin: 0;
+}
+
+h2 {
+    text-align: center;
+    font-size: 2em;
+    margin: 20px 0;
+    font-weight: 600;
+    color: #333;
+    width: 100%;
+}
+
+/* Desktop specific header styling */
+@media (min-width: 769px) {
+    h2 {
+        text-align: center;
+        font-size: 2.2em;
+        margin: 25px 0;
+        font-weight: 600;
+        color: #333;
+        width: 100%;
+        padding: 0;
+    }
 }
 
 h3 {
@@ -230,8 +295,10 @@ h4 {
 /* Tablet adjustments */
 @media (max-width: 1024px) {
     .container {
-        width: 95%;
+        width: 100%;
+        max-width: 95%;
         margin: 20px auto;
+        padding: 0 15px;
     }
 
     .list li {
@@ -239,8 +306,6 @@ h4 {
         gap: 8px;
         padding: 10px 12px;
     }
-
-
 }
 
 /* Mobile adjustments */
@@ -248,12 +313,14 @@ h4 {
     body {
         padding-top: 10px;
         font-size: 16px;
+        overflow-x: hidden;
     }
-    
+
     .container {
         width: 100%;
+        max-width: 100%;
         margin: 5px auto;
-        padding: 0 15px;
+        padding: 0 10px;
     }
 
     h1 {
@@ -381,10 +448,13 @@ h4 {
     body {
         padding-top: 5px;
         font-size: 14px;
+        overflow-x: hidden;
     }
-    
+
     .container {
-        padding: 0 10px;
+        width: 100%;
+        max-width: 100%;
+        padding: 0 8px;
         margin: 0 auto;
     }
 
@@ -439,19 +509,103 @@ h4 {
 }
 
 /* Main action buttons styling */
-.v-btn[variant="tonal"] {
+.v-btn[variant='tonal'] {
     background-color: #4f46e5 !important;
     color: white !important;
     border: none !important;
     border-radius: 8px !important;
     box-shadow: 0 2px 8px rgba(79, 70, 229, 0.3) !important;
     transition: all 0.3s ease !important;
+    max-width: 100% !important;
+    word-wrap: break-word !important;
+    white-space: normal !important;
 }
 
-.v-btn[variant="tonal"]:hover {
+.v-btn[variant='tonal']:hover {
     background-color: #4338ca !important;
     box-shadow: 0 4px 12px rgba(79, 70, 229, 0.4) !important;
     transform: translateY(-1px) !important;
+}
+
+/* Mobile button adjustments */
+@media (max-width: 768px) {
+    .v-btn[variant='tonal'] {
+        width: 100% !important;
+        max-width: 300px !important;
+        margin: 8px auto !important;
+        font-size: 14px !important;
+        padding: 12px 16px !important;
+        display: block !important;
+    }
+
+    /* Override Vuetify margin classes on buttons */
+    .v-btn.mr-6,
+    .v-btn.ml-6 {
+        margin: 8px auto !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .d-flex.justify-center {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        gap: 0 !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .pa-4.text-center {
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .pa-4.text-center .d-flex {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+}
+
+/* iPhone and small mobile specific button centering */
+@media (max-width: 480px) {
+    .v-btn[variant='tonal'] {
+        width: 100% !important;
+        max-width: 280px !important;
+        margin: 6px auto !important;
+        font-size: 13px !important;
+        padding: 10px 12px !important;
+        display: block !important;
+    }
+
+    /* Force override Vuetify button margins on small screens */
+    .v-btn.mr-6,
+    .v-btn.ml-6,
+    .v-btn[class*='mr-'],
+    .v-btn[class*='ml-'] {
+        margin: 6px auto !important;
+        margin-left: auto !important;
+        margin-right: auto !important;
+    }
+
+    .pa-4.text-center {
+        padding: 12px 8px !important;
+        text-align: center !important;
+        width: 100% !important;
+        display: flex !important;
+        justify-content: center !important;
+    }
+
+    .d-flex.justify-center {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        margin: 0 auto !important;
+    }
 }
 
 /* Dialog button styling */
@@ -465,13 +619,13 @@ h4 {
     background-color: #f5f5f5 !important;
 }
 
-.v-btn[color="primary"] {
+.v-btn[color='primary'] {
     border-color: #1976d2 !important;
     background-color: #1976d2 !important;
     color: white !important;
 }
 
-.v-btn[color="primary"]:hover {
+.v-btn[color='primary']:hover {
     border-color: #1565c0 !important;
     background-color: #1565c0 !important;
 }
@@ -576,18 +730,18 @@ h4 {
         flex-direction: column;
         gap: 15px;
     }
-    
+
     .page-numbers {
         justify-content: center;
         flex-wrap: wrap;
         gap: 8px;
     }
-    
+
     .pagination-btn {
         padding: 10px 20px;
         font-size: 16px;
     }
-    
+
     .page-btn {
         padding: 10px 12px;
         font-size: 16px;
@@ -631,8 +785,12 @@ h4 {
 }
 
 @keyframes spin {
-    0% { transform: rotate(0deg); }
-    100% { transform: rotate(360deg); }
+    0% {
+        transform: rotate(0deg);
+    }
+    100% {
+        transform: rotate(360deg);
+    }
 }
 
 .loading-text {
@@ -686,39 +844,64 @@ h4 {
         width: calc(100% - 40px);
         max-width: 400px;
     }
-    
+
     .loading-text {
         font-size: 18px;
         margin-bottom: 24px;
     }
-    
+
     .spinner {
         width: 50px;
         height: 50px;
         margin-bottom: 20px;
     }
-    
+
     .progress-item {
         font-size: 14px;
         padding: 6px 12px;
     }
-    
+
     .loading-progress {
         min-width: auto;
     }
 }
 
-/* iPhone specific adjustments */
+/* iPhone 12 Pro and similar screen sizes */
 @media screen and (max-width: 414px) {
+    html,
     body {
-        padding: 10px 0 0 0 !important;
+        overflow-x: hidden !important;
+        width: 100% !important;
+        max-width: 100% !important;
     }
-    
+
+    body {
+        padding: 5px 0 0 0 !important;
+    }
+
     .container {
-        padding: 0 20px !important;
-        width: calc(100% - 40px) !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        padding: 0 12px !important;
         margin: 0 auto !important;
         box-sizing: border-box !important;
+    }
+
+    /* Specific button centering for iPhone */
+    .pa-4.text-center .d-flex.justify-center {
+        display: flex !important;
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        text-align: center !important;
+    }
+
+    .pa-4.text-center .d-flex.justify-center .v-btn {
+        width: 100% !important;
+        max-width: 260px !important;
+        margin: 6px auto !important;
+        display: block !important;
     }
 
     h1 {
@@ -770,18 +953,72 @@ h4 {
     .pa-4 {
         padding: 16px 10px !important;
     }
-    
+
     .global-loading-spinner {
         padding: 20px 15px;
         margin: 15px;
     }
-    
+
     .loading-text {
         font-size: 16px;
     }
-    
+
     .spinner {
         width: 40px;
         height: 40px;
+    }
+
+    /* Fix Vuetify component overflow on iPhone */
+    .v-dialog .v-card {
+        width: 100% !important;
+        max-width: calc(100vw - 24px) !important;
+        margin: 12px !important;
+    }
+
+    .v-field {
+        width: 100% !important;
+        max-width: 100% !important;
+    }
+
+    .v-btn {
+        max-width: 100% !important;
+        word-wrap: break-word !important;
+    }
+
+    /* Prevent horizontal scroll from any element */
+    * {
+        max-width: 100% !important;
+        box-sizing: border-box !important;
+    }
+
+    /* Fix button container overflow */
+    .pa-4 {
+        padding: 8px !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        overflow-x: hidden !important;
+        display: flex !important;
+        justify-content: center !important;
+        align-items: center !important;
+    }
+
+    .d-flex {
+        flex-direction: column !important;
+        align-items: center !important;
+        justify-content: center !important;
+        width: 100% !important;
+        max-width: 100% !important;
+        gap: 8px !important;
+    }
+
+    .v-btn[variant='tonal'] {
+        width: 100% !important;
+        max-width: 280px !important;
+        margin: 4px 0 !important;
+    }
+
+    .mr-6,
+    .ml-6 {
+        margin: 4px 0 !important;
     }
 }
