@@ -527,6 +527,47 @@ h4 {
     transform: translateY(-1px) !important;
 }
 
+/* Mobile dialog optimizations */
+@media (max-width: 768px) {
+    .v-dialog .v-card {
+        max-height: calc(100vh - 40px) !important;
+        margin: 8px !important;
+    }
+
+    .v-card-text {
+        padding: 8px !important;
+    }
+
+    .v-card-title {
+        padding: 8px 12px 4px 12px !important;
+        font-size: 1.1em !important;
+    }
+
+    .v-card-actions {
+        padding: 4px 12px 8px 12px !important;
+    }
+
+    /* Compact form fields on mobile */
+    .v-field__input {
+        min-height: 40px !important;
+        font-size: 14px !important;
+    }
+
+    .v-textarea .v-field__input {
+        min-height: 55px !important;
+    }
+
+    .v-row.dense {
+        margin-top: 2px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .v-col {
+        padding-top: 3px !important;
+        padding-bottom: 3px !important;
+    }
+}
+
 /* Mobile button adjustments */
 @media (max-width: 768px) {
     .v-btn[variant='tonal'] {
@@ -972,7 +1013,9 @@ h4 {
     .v-dialog .v-card {
         width: 100% !important;
         max-width: calc(100vw - 24px) !important;
-        margin: 12px !important;
+        margin: 8px !important;
+        max-height: calc(100vh - 20px) !important;
+        overflow-y: auto !important;
     }
 
     .v-field {
@@ -983,6 +1026,68 @@ h4 {
     .v-btn {
         max-width: 100% !important;
         word-wrap: break-word !important;
+    }
+
+    /* Compact dialog styling for mobile */
+    .v-card-text {
+        padding: 8px 12px !important;
+    }
+
+    .v-card-title {
+        padding: 8px 12px 4px 12px !important;
+        font-size: 1.1em !important;
+    }
+
+    .v-card-actions {
+        padding: 4px 12px 8px 12px !important;
+        min-height: auto !important;
+    }
+
+    /* Compact form fields */
+    .v-field--variant-outlined {
+        --v-field-padding-top: 6px !important;
+        --v-field-padding-bottom: 6px !important;
+    }
+
+    .v-field__input {
+        min-height: 36px !important;
+        padding-top: 6px !important;
+        padding-bottom: 6px !important;
+        font-size: 14px !important;
+    }
+
+    .v-text-field .v-field__input {
+        min-height: 36px !important;
+    }
+
+    .v-textarea .v-field__input {
+        min-height: 50px !important;
+    }
+
+    /* Compact radio group */
+    .v-radio-group {
+        margin-top: 4px !important;
+        margin-bottom: 4px !important;
+    }
+
+    .v-radio {
+        margin-right: 12px !important;
+    }
+
+    /* Reduce row spacing */
+    .v-row {
+        margin-top: 2px !important;
+        margin-bottom: 2px !important;
+    }
+
+    .v-col {
+        padding-top: 2px !important;
+        padding-bottom: 2px !important;
+    }
+
+    /* Compact labels */
+    .v-label {
+        font-size: 13px !important;
     }
 
     /* Prevent horizontal scroll from any element */
