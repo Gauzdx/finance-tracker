@@ -308,6 +308,50 @@ h4 {
     }
 }
 
+/* Prevent mobile zoom on input focus - iOS Safari zooms when font-size < 16px */
+input, select, textarea, button {
+    font-size: 16px !important;
+    -webkit-text-size-adjust: 100% !important;
+}
+
+/* Vuetify input field font size override for mobile */
+@media (max-width: 768px) {
+    .v-field__input,
+    .v-field__input input,
+    .v-select__selection,
+    .v-combobox__selection,
+    .v-textarea .v-field__input,
+    .v-text-field .v-field__input,
+    .v-date-input .v-field__input,
+    .v-autocomplete .v-field__input,
+    .v-combobox .v-field__input {
+        font-size: 16px !important;
+        -webkit-text-size-adjust: 100% !important;
+    }
+    
+    /* Ensure labels and placeholders also use appropriate sizes */
+    .v-label,
+    .v-field__placeholder {
+        font-size: 14px !important;
+    }
+    
+    /* Override any smaller font sizes in form controls */
+    .v-input__control,
+    .v-field__field,
+    .v-field__input,
+    .v-select__menu-inner,
+    .v-list-item-title,
+    .v-menu .v-list-item {
+        font-size: 16px !important;
+    }
+    
+    /* Dropdown menu items */
+    .v-list-item__content,
+    .v-list-item__title {
+        font-size: 16px !important;
+    }
+}
+
 /* Mobile adjustments */
 @media (max-width: 768px) {
     body {
@@ -547,14 +591,15 @@ h4 {
         padding: 4px 12px 8px 12px !important;
     }
 
-    /* Compact form fields on mobile */
+    /* Compact form fields on mobile - but keep 16px font to prevent zoom */
     .v-field__input {
         min-height: 40px !important;
-        font-size: 14px !important;
+        font-size: 16px !important;
     }
 
     .v-textarea .v-field__input {
         min-height: 55px !important;
+        font-size: 16px !important;
     }
 
     .v-row.dense {
@@ -1109,15 +1154,17 @@ h4 {
         min-height: 36px !important;
         padding-top: 6px !important;
         padding-bottom: 6px !important;
-        font-size: 14px !important;
+        font-size: 16px !important;
     }
 
     .v-text-field .v-field__input {
         min-height: 36px !important;
+        font-size: 16px !important;
     }
 
     .v-textarea .v-field__input {
         min-height: 50px !important;
+        font-size: 16px !important;
     }
 
     /* Compact radio group */
@@ -1141,9 +1188,31 @@ h4 {
         padding-bottom: 2px !important;
     }
 
-    /* Compact labels */
+    /* Compact labels - but keep readable size */
     .v-label {
-        font-size: 13px !important;
+        font-size: 14px !important;
+    }
+
+    /* Prevent zoom on input focus for iPhone */
+    input, select, textarea, button,
+    .v-field__input,
+    .v-field__input input,
+    .v-select__selection,
+    .v-combobox__selection,
+    .v-textarea .v-field__input,
+    .v-text-field .v-field__input,
+    .v-date-input .v-field__input,
+    .v-autocomplete .v-field__input,
+    .v-combobox .v-field__input {
+        font-size: 16px !important;
+        -webkit-text-size-adjust: 100% !important;
+    }
+
+    /* Dropdown and menu items */
+    .v-list-item__content,
+    .v-list-item__title,
+    .v-menu .v-list-item {
+        font-size: 16px !important;
     }
 
     /* Prevent horizontal scroll from any element */
