@@ -275,7 +275,7 @@ const exportToCSV = async () => {
         if (link.download !== undefined) {
             const url = URL.createObjectURL(blob)
             link.setAttribute('href', url)
-            link.setAttribute('download', `transactions_${formatDateForDB(new Date())}.csv`)
+            link.setAttribute('download', `transactions.csv`)
             link.style.visibility = 'hidden'
             document.body.appendChild(link)
             link.click()

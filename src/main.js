@@ -19,6 +19,15 @@ const vuetify = createVuetify({
 })
 
 const app = createApp(App)
-app.use(Toast)
+
+// Configure toast with custom timeout settings
+const toastOptions = {
+    timeout: 1500, // 1.5 seconds timeout
+    hideProgressBar: false, // Keep progress bar functionality
+    closeOnClick: true, // Maintain click to dismiss functionality
+    pauseOnFocusLoss: true // Pause timeout when window loses focus
+}
+
+app.use(Toast, toastOptions)
 app.use(vuetify)
 app.mount('#app')

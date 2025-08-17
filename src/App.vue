@@ -2,8 +2,9 @@
     <!-- Global Loading Spinner -->
     <div v-if="isInitialLoading" class="global-loading-overlay">
         <div class="global-loading-spinner">
+            <h2 class="loading-title">GULLAK</h2>
             <div class="spinner"></div>
-            <p class="loading-text">Loading your financial data...</p>
+            <p class="loading-text">Loading your data...</p>
             <div class="loading-progress">
                 <div class="progress-item" :class="{ completed: transactionsLoaded, error: transactionsError }">
                     <span class="progress-icon">{{ transactionsLoaded ? '✓' : transactionsError ? '✗' : '○' }}</span>
