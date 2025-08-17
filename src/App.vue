@@ -201,7 +201,7 @@ const fetchAllCategories = async () => {
 
 const fetchAllAccounts = async () => {
     try {
-        const response = await axios.get('/data-api/rest/accounts')
+        const response = await axios.get('/data-api/rest/accounts?$orderby=sort_id asc')
         accounts.value = response.data.value
         accountsLoaded.value = true
         checkInitialLoadComplete()
